@@ -4,7 +4,7 @@
 
 # Clone Repo
 1. Set up GitHub SSH
-2. Run `git clone git@github.com:Lingoroo/lingoroo.git` in your local
+2. Run `git clone git@github.com:ztfes/request-bin.git` in your local
 
 # Developer Dependencies:
 
