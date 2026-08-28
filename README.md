@@ -1,5 +1,7 @@
 # request-bin
 
+# request-bin
+
 # Clone Repo
 1. Set up GitHub SSH
 2. Run `git clone git@github.com:Lingoroo/lingoroo.git` in your local
