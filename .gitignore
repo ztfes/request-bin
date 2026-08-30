@@ -1,0 +1,17 @@
+# --- Python (backend/) ---
+
+# --- Node (frontend/) ---
+node_modules/
+dist/
+*.local
+
+# --- Env / secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Editor / OS ---
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
