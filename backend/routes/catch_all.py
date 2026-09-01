@@ -1,25 +1,74 @@
-from fastapi import APIRouter, Request, Response
+import uuid
+from datetime import datetime, timezone
+
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy.orm import Session
+
+from connection_manager import manager
+from db.mongo import get_requests_collection
+from models.bucket import Bucket
+from models.bucket_request import BucketRequest
+from models.database import get_db
 
 router = APIRouter()
 
 
 @router.api_route(
-    "/{full_path:path}",
+    "/{public_id}/{path:path}",
     methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
 )
-async def capture(full_path: str, request: Request):
-    """Catch any incoming request and echo its parsed contents.
+async def capture(
+    public_id: uuid.UUID,
+    path: str,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    """Capture an inbound request against a bucket, persist it, and broadcast it."""
+    bucket = db.query(Bucket).filter(Bucket.public_id == public_id).first()
+    if bucket is None:
+        raise HTTPException(status_code=404, detail="Bucket not found")
 
-    No persistence yet -- this exists so incoming webhooks (e.g. tunnelled
-    through ngrok) can be inspected while the capture/storage path is built.
-    """
     raw_body = await request.body()
-    captured = {
-        "method": request.method,
-        "path": "/" + full_path,
-        "query": dict(request.query_params),
-        "headers": dict(request.headers),
-        "body": raw_body.decode("utf-8", errors="replace"),
-    }
-    print(captured)
-    return Response(status_code=200)
+    headers = dict(request.headers)
+    decoded_body = raw_body.decode("utf-8", errors="replace")
+    full_path = "/" + path
+
+    mongo_result = get_requests_collection().insert_one(
+        {
+            "bucket_public_id": str(public_id),
+            "method": request.method,
+            "path": full_path,
+            "query": dict(request.query_params),
+            "headers": headers,
+            "body": decoded_body,
+            "received_at": datetime.now(timezone.utc),
+        }
+    )
+
+    bucket_request = BucketRequest(
+        bucket_id=bucket.bucket_id,
+        method=request.method,
+        path=full_path,
+        headers=headers,
+        body=decoded_body,
+        mongo_id=str(mongo_result.inserted_id),
+    )
+    db.add(bucket_request)
+    bucket.last_visit_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(bucket_request)
+
+    await manager.broadcast(
+        str(public_id),
+        {
+            "id": bucket_request.id,
+            "method": bucket_request.method,
+            "path": bucket_request.path,
+            "headers": bucket_request.headers,
+            "body": bucket_request.body,
+            "received_at": bucket_request.received_at.isoformat(),
+            "mongo_id": bucket_request.mongo_id,
+        },
+    )
+
+    return {"status": "captured", "bucket": str(public_id)}

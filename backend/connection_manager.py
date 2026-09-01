@@ -22,3 +22,6 @@ class ConnectionManager:
     async def broadcast(self, bucket_id: str, message: dict) -> None:
         for websocket in set(self.active_connections.get(bucket_id, set())):
             await websocket.send_json(message)
+
+
+manager = ConnectionManager()
