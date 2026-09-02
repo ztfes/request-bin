@@ -30,8 +30,7 @@ class BucketRequestOut(BaseModel):
     body: str | None
     received_at: datetime
     mongo_id: str
-# Must stay above the catch-all below -- FastAPI matches in declaration order,
-# and /{full_path:path} would otherwise swallow POST /buckets.
+
 
 # Is the route handler for POST /buckets
 @router.post("/buckets", response_model=BucketOut, status_code=status.HTTP_201_CREATED)
