@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 
+from fastapi import Header
 from fastapi import  APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
@@ -16,6 +17,7 @@ class BucketOut(BaseModel):
 
     bucket_id: int
     public_id: uuid.UUID
+    owner_token: str
     created_at: datetime
     last_visit_at: datetime
 
@@ -31,6 +33,9 @@ class BucketRequestOut(BaseModel):
     received_at: datetime
     mongo_id: str
 
+class BucketRequestListOut(BaseModel):
+    total: int
+    requests: list[BucketRequestOut]
 
 # Is the route handler for POST /buckets
 @router.post("/buckets", response_model=BucketOut, status_code=status.HTTP_201_CREATED)
@@ -42,29 +47,46 @@ def create_bucket(db: Session = Depends(get_db)) -> Bucket:
     return bucket
 
 # Is the route handler for GET /buckets/{public_id}
-@router.get("/buckets/{public_id}", response_model=list[BucketRequestOut])
-def list_bucket_requests(public_id: uuid.UUID, db: Session = Depends(get_db)) -> list[BucketRequest]:
+@router.get("/buckets/{public_id}", response_model=BucketRequestListOut)
+def list_bucket_requests(
+    public_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    owner_token: str = Header(...),) -> BucketRequestListOut:
     bucket = db.query(Bucket).filter(Bucket.public_id == public_id).first()
     if bucket is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Bucket not found")
-    return (
+    
+    if bucket.owner_token != owner_token:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to view this bucket")
+    
+    requests = (
         db.query(BucketRequest)
         .filter(BucketRequest.bucket_id == bucket.bucket_id)
         .order_by(BucketRequest.received_at.asc())
         .all()
     )
+    return BucketRequestListOut(total=len(requests), requests=requests)
 
 # Is the route handler for GET /buckets/{public_id}/requests/{request_id}
 @router.get("/buckets/{public_id}/requests/{request_id}", response_model=BucketRequestOut)
 def get_bucket_request(
-    public_id: uuid.UUID, request_id: int, db: Session = Depends(get_db)
+    public_id: uuid.UUID, 
+    request_id: int, 
+    db: Session = Depends(get_db),
+    owner_token: str = Header(...)
 ) -> BucketRequest:
     bucket = db.query(Bucket).filter(Bucket.public_id == public_id).first()
+
     if bucket is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Bucket not found")
 
+    if bucket.owner_token != owner_token:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to view this bucket")
+    
     bucket_request = (
         db.query(BucketRequest)
         .filter(
@@ -78,24 +100,3 @@ def get_bucket_request(
             status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
 
     return bucket_request
-
-@router.api_route(
-    "/{full_path:path}",
-    methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
-)
-async def capture(full_path: str, request: Request):
-    """Catch any incoming request and echo its parsed contents.
-
-    No persistence yet -- this exists so incoming webhooks (e.g. tunnelled
-    through ngrok) can be inspected while the capture/storage path is built.
-    """
-    raw_body = await request.body()
-    captured = {
-        "method": request.method,
-        "path": "/" + full_path,
-        "query": dict(request.query_params),
-        "headers": dict(request.headers),
-        "body": raw_body.decode("utf-8", errors="replace"),
-    }
-    print(captured)
-    return Response(status_code=200)
