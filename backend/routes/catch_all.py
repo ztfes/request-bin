@@ -1,3 +1,4 @@
+import base64
 import uuid
 from datetime import datetime, timezone
 
@@ -9,6 +10,7 @@ from db.mongo import get_requests_collection
 from models.bucket import Bucket
 from models.bucket_request import BucketRequest
 from models.database import get_db
+from models.request_document import RequestDocument
 
 router = APIRouter()
 
@@ -33,17 +35,16 @@ async def capture(
     decoded_body = raw_body.decode("utf-8", errors="replace")
     full_path = "/" + path
 
-    mongo_result = get_requests_collection().insert_one(
-        {
-            "bucket_public_id": str(public_id),
-            "method": request.method,
-            "path": full_path,
-            "query": dict(request.query_params),
-            "headers": headers,
-            "body": decoded_body,
-            "received_at": datetime.now(timezone.utc),
-        }
+    request_document = RequestDocument(
+        bucket_id=bucket.bucket_id,
+        method=request.method,
+        path=full_path,
+        headers=headers,
+        query_params=dict(request.query_params),
+        remote_addr=request.client.host if request.client else None,
+        raw_request=base64.b64encode(raw_body).decode("ascii"),
     )
+    mongo_result = get_requests_collection().insert_one(request_document.model_dump())
 
     bucket_request = BucketRequest(
         bucket_id=bucket.bucket_id,
