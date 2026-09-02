@@ -7,7 +7,7 @@ that collection aligned on one document shape rather than drifting into
 mismatched fields.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pydantic import BaseModel, Field
 
@@ -19,5 +19,5 @@ class RequestDocument(BaseModel):
     headers: dict[str, str]
     query_params: dict[str, str] | None = None
     remote_addr: str | None = None
-    received_at: datetime = Field(default_factory=datetime.utcnow)
+    received_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     raw_request: str  # base64-encoded raw request bytes; do not decode as UTF-8
