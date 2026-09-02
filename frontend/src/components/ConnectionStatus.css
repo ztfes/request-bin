@@ -1,0 +1,56 @@
+.connection-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.85em;
+  color: var(--connection-status-color, #666);
+}
+
+.connection-status-dot {
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.connection-status-open {
+  --connection-status-color: #2e7d32;
+}
+
+.connection-status-open .connection-status-dot {
+  animation: connection-status-pulse 2s ease-in-out infinite;
+}
+
+.connection-status-connecting,
+.connection-status-reconnecting {
+  --connection-status-color: #b26a00;
+}
+
+.connection-status-reconnecting .connection-status-dot {
+  animation: connection-status-blink 1s steps(1) infinite;
+}
+
+.connection-status-closed {
+  --connection-status-color: #999;
+}
+
+@keyframes connection-status-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes connection-status-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.35;
+  }
+}
