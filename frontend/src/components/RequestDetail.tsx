@@ -1,8 +1,8 @@
-import type { BucketRequestOut } from '../lib/api'
+import type { BucketRequestMessage } from '../lib/ws'
 import { formatReceivedAt } from '../lib/format'
 
 interface RequestDetailProps {
-  request: BucketRequestOut | undefined
+  request: BucketRequestMessage | undefined
 }
 
 function RequestDetail({ request }: RequestDetailProps) {

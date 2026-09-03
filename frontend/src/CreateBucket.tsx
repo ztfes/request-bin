@@ -1,5 +1,6 @@
-import { useState, useEffect} from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { addStoredBucket, getStoredBuckets, type StoredBucket } from "./lib/binStorage";
 
 const API_BASE = "http://localhost:8000";
 
@@ -11,22 +12,12 @@ type Bucket = {
   last_visit_at: string;
 };
 
-type StoredBucket = {
-  public_id: string;
-  owner_token: string;
-};
-
 export default function CreateBucket() {
   const [bucket, setBucket] = useState<Bucket | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false)
-  const [myBuckets, setMyBuckets] = useState<StoredBucket[]>([]);
+  const [myBuckets, setMyBuckets] = useState<StoredBucket[]>(() => getStoredBuckets());
   const navigate = useNavigate();
- 
-  useEffect(() => {
-    const stored = localStorage.getItem("buckets");
-    setMyBuckets(stored ? JSON.parse(stored) : []);
-  }, []);
 
   async function handleCreate() {
     setError(null);
@@ -37,16 +28,10 @@ export default function CreateBucket() {
       }
       const data: Bucket = await res.json();
       setBucket(data);
-      const stored = localStorage.getItem("buckets");
-      const parsed: StoredBucket[] = stored ? JSON.parse(stored) : [];
-      const updated = [
-        ...parsed,
-        { public_id: data.public_id, owner_token: data.owner_token },
-      ];
-      localStorage.setItem("buckets", JSON.stringify(updated));
+      const updated = addStoredBucket({ public_id: data.public_id, owner_token: data.owner_token });
       setMyBuckets(updated);
-      
-    } catch (err) {
+
+    } catch {
       setError("Couldn't create a bucket. Is the backend running?");
     }
   }

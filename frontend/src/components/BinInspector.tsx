@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react'
-import { ApiError, binUrl, listBucketRequests, type BucketRequestOut } from '../lib/api'
+import { useEffect, useMemo, useState } from 'react'
+import { ApiError, binUrl, listBucketRequests } from '../lib/api'
+import { useBucketRequestFeed } from '../hooks/useBucketRequestFeed'
+import type { BucketRequestMessage, ConnectionStatus as ConnectionStatusValue } from '../lib/ws'
 import BinUrl from './BinUrl'
+import ConnectionStatus from './ConnectionStatus'
 import RequestDetail from './RequestDetail'
 import RequestList from './RequestList'
 
@@ -9,11 +12,12 @@ interface BinInspectorProps {
   ownerToken: string | null
 }
 
-function Header({ url }: { url: string }) {
+function Header({ url, status }: { url: string; status?: ConnectionStatusValue }) {
   return (
     <header className="bin-inspector-header">
       <h1>Bin Inspector</h1>
       <BinUrl url={url} />
+      {status && <ConnectionStatus status={status} />}
     </header>
   )
 }
@@ -46,7 +50,15 @@ interface BinInspectorContentProps {
 type LoadState =
   | { status: 'loading' }
   | { status: 'error'; message: string }
-  | { status: 'loaded'; requests: BucketRequestOut[] }
+  | { status: 'loaded'; requests: BucketRequestMessage[] }
+
+const EMPTY_REQUESTS: BucketRequestMessage[] = []
+
+function sortByReceivedAtDesc(requests: BucketRequestMessage[]): BucketRequestMessage[] {
+  return [...requests].sort(
+    (a, b) => new Date(b.received_at).getTime() - new Date(a.received_at).getTime(),
+  )
+}
 
 function BinInspectorContent({ publicId, ownerToken, url }: BinInspectorContentProps) {
   const [state, setState] = useState<LoadState>({ status: 'loading' })
@@ -59,13 +71,7 @@ function BinInspectorContent({ publicId, ownerToken, url }: BinInspectorContentP
     listBucketRequests(publicId, ownerToken)
       .then((data) => {
         if (cancelled) return
-        const sorted = [...data.requests].sort(
-          (a, b) => new Date(b.received_at).getTime() - new Date(a.received_at).getTime(),
-        )
-        setState({ status: 'loaded', requests: sorted })
-        setSelectedId((current) =>
-          current !== null && sorted.some((r) => r.id === current) ? current : (sorted[0]?.id ?? null),
-        )
+        setState({ status: 'loaded', requests: sortByReceivedAtDesc(data.requests) })
       })
       .catch((err: unknown) => {
         if (cancelled) return
@@ -80,6 +86,20 @@ function BinInspectorContent({ publicId, ownerToken, url }: BinInspectorContentP
     }
   }, [publicId, ownerToken, attempt])
 
+  const initialRequests = state.status === 'loaded' ? state.requests : EMPTY_REQUESTS
+  const { requests: liveRequests, status: wsStatus } = useBucketRequestFeed(publicId, initialRequests)
+  const requests = useMemo(() => sortByReceivedAtDesc(liveRequests), [liveRequests])
+
+  // Sync selection during render (rather than in an effect) when the
+  // requests list changes, per https://react.dev/learn/you-might-not-need-an-effect
+  const [trackedRequests, setTrackedRequests] = useState(requests)
+  if (requests !== trackedRequests) {
+    setTrackedRequests(requests)
+    setSelectedId((current) =>
+      current !== null && requests.some((r) => r.id === current) ? current : (requests[0]?.id ?? null),
+    )
+  }
+
   function retry() {
     setState({ status: 'loading' })
     setAttempt((a) => a + 1)
@@ -87,7 +107,7 @@ function BinInspectorContent({ publicId, ownerToken, url }: BinInspectorContentP
 
   return (
     <div className="bin-inspector">
-      <Header url={url} />
+      <Header url={url} status={wsStatus} />
 
       <main className="bin-inspector-body">
         {state.status === 'loading' && <p className="status">Loading requests…</p>}
@@ -101,21 +121,21 @@ function BinInspectorContent({ publicId, ownerToken, url }: BinInspectorContentP
           </div>
         )}
 
-        {state.status === 'loaded' && state.requests.length === 0 && (
+        {state.status === 'loaded' && requests.length === 0 && (
           <div className="empty-state">
             <h2>No requests yet</h2>
             <p>Send a request to the URL above and it will show up here.</p>
           </div>
         )}
 
-        {state.status === 'loaded' && state.requests.length > 0 && (
+        {state.status === 'loaded' && requests.length > 0 && (
           <div className="panes">
             <RequestList
-              requests={state.requests}
+              requests={requests}
               selectedId={selectedId}
               onSelect={setSelectedId}
             />
-            <RequestDetail request={state.requests.find((r) => r.id === selectedId)} />
+            <RequestDetail request={requests.find((r) => r.id === selectedId)} />
           </div>
         )}
       </main>
