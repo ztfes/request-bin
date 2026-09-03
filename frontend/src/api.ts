@@ -6,10 +6,8 @@
  * than re-invented in each view.
  */
 
-const DEFAULT_BASE_URL = 'http://localhost:8000'
-
 /** Backend origin, configurable per environment via VITE_API_URL. */
-export const BASE_URL = (import.meta.env.VITE_API_URL ?? DEFAULT_BASE_URL).replace(/\/+$/, '')
+export const BASE_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000').replace(/\/+$/, '')
 
 /** Mirrors backend BucketOut. */
 export interface Bucket {
@@ -38,7 +36,7 @@ export interface BucketRequestList {
   requests: BucketRequest[]
 }
 
-/** A non-2xx response from the backend. */
+/** A non-2xx response. Carries the status so callers can tell 403 from 404. */
 export class ApiError extends Error {
   readonly status: number
 
@@ -55,24 +53,11 @@ function ownerTokenHeader(ownerToken: string): HeadersInit {
   return { 'owner-token': ownerToken }
 }
 
-async function errorMessage(response: Response): Promise<string> {
-  try {
-    const body = await response.json()
-    // FastAPI puts a plain string in `detail` for HTTPException; validation
-    // errors put an array there instead, which is not worth surfacing raw.
-    if (typeof body?.detail === 'string') {
-      return body.detail
-    }
-  } catch {
-    // Body was not JSON -- fall back to the status line.
-  }
-  return response.statusText || `Request failed with status ${response.status}`
-}
-
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${BASE_URL}${path}`, init)
   if (!response.ok) {
-    throw new ApiError(response.status, await errorMessage(response))
+    const body = await response.json().catch(() => null)
+    throw new ApiError(response.status, body?.detail ?? response.statusText)
   }
   return (await response.json()) as T
 }
@@ -87,7 +72,7 @@ export function createBucket(): Promise<Bucket> {
 
 /** List every request captured by a bucket, oldest first. */
 export function listRequests(publicId: string, ownerToken: string): Promise<BucketRequestList> {
-  return request<BucketRequestList>(`/buckets/${encodeURIComponent(publicId)}`, {
+  return request<BucketRequestList>(`/buckets/${publicId}`, {
     headers: ownerTokenHeader(ownerToken),
   })
 }
@@ -98,10 +83,9 @@ export function getRequestDetail(
   requestId: number,
   ownerToken: string,
 ): Promise<BucketRequest> {
-  return request<BucketRequest>(
-    `/buckets/${encodeURIComponent(publicId)}/requests/${requestId}`,
-    { headers: ownerTokenHeader(ownerToken) },
-  )
+  return request<BucketRequest>(`/buckets/${publicId}/requests/${requestId}`, {
+    headers: ownerTokenHeader(ownerToken),
+  })
 }
 
 /**
@@ -112,13 +96,5 @@ export function getRequestDetail(
  * not the integer bucket_id.
  */
 export function wsUrl(publicId: string): string {
-  return `${BASE_URL.replace(/^http/, 'ws')}/ws/${encodeURIComponent(publicId)}`
-}
-
-/**
- * The catch-all URL that inbound requests get sent to for a bucket -- i.e. the
- * URL a user copies out of the UI and points their webhook at.
- */
-export function captureUrl(publicId: string): string {
-  return `${BASE_URL}/${encodeURIComponent(publicId)}/`
+  return `${BASE_URL.replace(/^http/, 'ws')}/ws/${publicId}`
 }
