@@ -63,7 +63,9 @@ function sortByReceivedAtDesc(requests: BucketRequestMessage[]): BucketRequestMe
 
 function BinInspectorContent({ publicId, ownerToken, url }: BinInspectorContentProps) {
   const [state, setState] = useState<LoadState>({ status: 'loading' })
-  const [selectedId, setSelectedId] = useState<number | null>(null)
+  // `null` means "follow the newest request". Only an explicit click pins one,
+  // so live arrivals render immediately until the user picks a request.
+  const [pinnedId, setPinnedId] = useState<number | null>(null)
   const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
@@ -91,15 +93,10 @@ function BinInspectorContent({ publicId, ownerToken, url }: BinInspectorContentP
   const { requests: liveRequests, status: wsStatus } = useBucketRequestFeed(publicId, initialRequests)
   const requests = useMemo(() => sortByReceivedAtDesc(liveRequests), [liveRequests])
 
-  // Sync selection during render (rather than in an effect) when the
-  // requests list changes, per https://react.dev/learn/you-might-not-need-an-effect
-  const [trackedRequests, setTrackedRequests] = useState(requests)
-  if (requests !== trackedRequests) {
-    setTrackedRequests(requests)
-    setSelectedId((current) =>
-      current !== null && requests.some((r) => r.id === current) ? current : (requests[0]?.id ?? null),
-    )
-  }
+  // Derived, not state: falls back to the newest request whenever nothing is
+  // pinned or the pinned request is no longer in the list.
+  const selected = requests.find((r) => r.id === pinnedId) ?? requests[0]
+  const selectedId = selected?.id ?? null
 
   function retry() {
     setState({ status: 'loading' })
@@ -134,9 +131,9 @@ function BinInspectorContent({ publicId, ownerToken, url }: BinInspectorContentP
             <RequestList
               requests={requests}
               selectedId={selectedId}
-              onSelect={setSelectedId}
+              onSelect={setPinnedId}
             />
-            <RequestDetail request={requests.find((r) => r.id === selectedId)} />
+            <RequestDetail request={selected} />
           </div>
         )}
       </main>
