@@ -1,8 +1,8 @@
-import type { BucketRequestOut } from '../lib/api'
+import type { BucketRequestMessage } from '../lib/ws'
 import { formatReceivedAt } from '../lib/format'
 
 interface RequestListProps {
-  requests: BucketRequestOut[]
+  requests: BucketRequestMessage[]
   selectedId: number | null
   onSelect: (id: number) => void
 }
