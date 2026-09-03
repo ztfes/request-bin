@@ -98,3 +98,15 @@ export function getRequestDetail(
 export function wsUrl(publicId: string): string {
   return `${BASE_URL.replace(/^http/, 'ws')}/ws/${publicId}`
 }
+
+/**
+ * The URL inbound requests get sent to for a bucket -- i.e. the URL a user
+ * copies out of the UI and points their webhook at.
+ *
+ * The trailing slash matters: the catch-all route is `/{public_id}/{path}`, so
+ * a bare `/{public_id}` answers with a 307 redirect that some webhook providers
+ * will not follow.
+ */
+export function captureUrl(publicId: string): string {
+  return `${BASE_URL}/${publicId}/`
+}
