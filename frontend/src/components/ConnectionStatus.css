@@ -34,6 +34,10 @@
   --connection-status-color: #999;
 }
 
+.connection-status-not-found {
+  --connection-status-color: #c62828;
+}
+
 @keyframes connection-status-pulse {
   0%,
   100% {

@@ -6,6 +6,7 @@ const LABELS: Record<ConnectionStatusValue, string> = {
   open: 'Live',
   reconnecting: 'Reconnecting…',
   closed: 'Disconnected',
+  'not-found': 'Bin not found',
 }
 
 interface ConnectionStatusProps {
