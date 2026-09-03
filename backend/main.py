@@ -14,7 +14,7 @@ frontend_origins = os.getenv("FRONTEND_ORIGINS", "http://localhost:5173,http://1
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[origin.strip() for origin in frontend_origins.split(",") if origin.strip()],
-    allow_methods=["GET"],
+    allow_methods=["*"],
     allow_headers=["Owner-Token"],
 )
 
