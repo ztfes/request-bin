@@ -5,6 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routes import bins, catch_all, websocket
 
+load_dotenv()
+
 app = FastAPI(title="Request Bin")
 
 frontend_origins = os.getenv("FRONTEND_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
