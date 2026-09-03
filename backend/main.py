@@ -1,8 +1,7 @@
 import os
 
-from dotenv import load_dotenv
 from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 from routes import bins, catch_all, websocket
 
@@ -10,12 +9,12 @@ load_dotenv()
 
 app = FastAPI(title="Request Bin")
 
-allowed_origins = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()]
+frontend_origins = os.getenv("FRONTEND_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=[origin.strip() for origin in frontend_origins.split(",") if origin.strip()],
+    allow_methods=["GET"],
+    allow_headers=["Owner-Token"],
 )
 
 # bins must come first -- catch_all's /{full_path:path} would otherwise swallow it.
