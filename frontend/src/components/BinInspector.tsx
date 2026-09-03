@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import '../App.css'
 import { ApiError, binUrl, listBucketRequests } from '../lib/api'
 import { useBucketRequestFeed } from '../hooks/useBucketRequestFeed'
 import type { BucketRequestMessage, ConnectionStatus as ConnectionStatusValue } from '../lib/ws'

@@ -1,23 +1,44 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
+  --text: #8891a5;
+  --text-h: #edeff3;
+  --bg: #0a0e14;
+  --panel-bg: #0e131b;
+  --panel-bg-raised: #131a24;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --code-bg: #0d121a;
+  --accent: #6d7cf7;
+  --accent-bg: rgba(109, 124, 247, 0.12);
+  --accent-border: rgba(109, 124, 247, 0.55);
+  --success: #22c55e;
+  --success-bg: rgba(34, 197, 94, 0.12);
+  --social-bg: rgba(19, 26, 36, 0.6);
   --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+    rgba(0, 0, 0, 0.5) 0 10px 15px -3px, rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
+
+  --method-get: #60a5fa;
+  --method-get-bg: rgba(59, 130, 246, 0.14);
+  --method-get-border: rgba(59, 130, 246, 0.4);
+  --method-post: #4ade80;
+  --method-post-bg: rgba(34, 197, 94, 0.14);
+  --method-post-border: rgba(34, 197, 94, 0.4);
+  --method-put: #fb923c;
+  --method-put-bg: rgba(249, 115, 22, 0.14);
+  --method-put-border: rgba(249, 115, 22, 0.4);
+  --method-patch: #c084fc;
+  --method-patch-bg: rgba(168, 85, 247, 0.14);
+  --method-patch-border: rgba(168, 85, 247, 0.4);
+  --method-delete: #f87171;
+  --method-delete-bg: rgba(239, 68, 68, 0.14);
+  --method-delete-border: rgba(239, 68, 68, 0.4);
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
+  color-scheme: dark;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -27,26 +48,6 @@
 
   @media (max-width: 1024px) {
     font-size: 16px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
   }
 }
 
@@ -104,4 +105,5 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+  border: 1px solid var(--border);
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { addStoredBucket, getStoredBuckets, type StoredBucket } from "./lib/binStorage";
+import "./CreateBucket.css";
 
 const API_BASE = "http://localhost:8000";
 
@@ -55,37 +56,36 @@ export default function CreateBucket() {
   return id.slice(0, 5);
   } 
   return (
-    <div>
-      <h2> Create a new Bucket</h2>
-      <h3> Create a bucket to collect and inspect HTTP requests</h3>
-      <button onClick={handleCreate}>Create a bucket</button>
-      
-      {error && <p>{error}</p>}
+    <div className="create-bucket">
+      <h2>Create a new Bucket</h2>
+      <h3 className="subtitle">Create a bucket to collect and inspect HTTP requests</h3>
+      <button className="primary-button" onClick={handleCreate}>Create a bucket</button>
 
-     
+      {error && <p className="error-message">{error}</p>}
+
       {bucket && (
-        <>
-        <p>
-          Send requests to: <code>{API_BASE}/{bucket.public_id}</code>
-        </p>
-        <button onClick={handleCopy}>{copied ? "Copied!" : "Copy"}</button>
-        <button onClick={handleContinue}>Go to bucket</button>
-        </>
+        <div className="new-bucket-panel">
+          <p>
+            Send requests to: <code className="new-bucket-url">{API_BASE}/{bucket.public_id}</code>
+          </p>
+          <div className="button-row">
+            <button className="secondary-button" onClick={handleCopy}>{copied ? "Copied!" : "Copy"}</button>
+            <button className="secondary-button" onClick={handleContinue}>Go to bucket</button>
+          </div>
+        </div>
       )}
-      
 
-      <h3>Your buckets</h3>
-      {myBuckets.length === 0 && <p>No bins yet.</p>}
-      <ul>
+      <h3 className="section-label">Your buckets</h3>
+      {myBuckets.length === 0 && <p className="muted">No bins yet.</p>}
+      <ul className="bucket-list">
         {myBuckets.map((b) => (
           <li key={b.public_id}>
-            <button onClick={() => navigate(`/bin/${b.public_id}`)}>
+            <button className="bucket-list-item" onClick={() => navigate(`/bin/${b.public_id}`)}>
               {shortenId(b.public_id)}
             </button>
           </li>
         ))}
       </ul>
-
     </div>
   );
 }

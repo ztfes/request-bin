@@ -2,8 +2,10 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4em;
-  font-size: 0.85em;
-  color: var(--connection-status-color, #666);
+  font-family: var(--sans);
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--connection-status-color, var(--text));
 }
 
 .connection-status-dot {
@@ -14,7 +16,7 @@
 }
 
 .connection-status-open {
-  --connection-status-color: #2e7d32;
+  --connection-status-color: var(--success);
 }
 
 .connection-status-open .connection-status-dot {
@@ -23,7 +25,7 @@
 
 .connection-status-connecting,
 .connection-status-reconnecting {
-  --connection-status-color: #b26a00;
+  --connection-status-color: var(--method-put);
 }
 
 .connection-status-reconnecting .connection-status-dot {
@@ -31,11 +33,11 @@
 }
 
 .connection-status-closed {
-  --connection-status-color: #999;
+  --connection-status-color: var(--text);
 }
 
 .connection-status-not-found {
-  --connection-status-color: #c62828;
+  --connection-status-color: var(--method-delete);
 }
 
 @keyframes connection-status-pulse {

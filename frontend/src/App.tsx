@@ -1,7 +1,7 @@
 import { Routes, Route, useParams } from 'react-router-dom'
 import CreateBucket from "./CreateBucket";
-import NotFound from "./components/NotFound";
 import BinInspector from "./components/BinInspector";
+import NotFound from "./components/NotFound";
 import { getOwnerToken } from "./lib/binStorage";
 
 function BinPage() {
@@ -17,8 +17,8 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<CreateBucket />} />
-      <Route path="*" element={<NotFound />} />
       <Route path="/bin/:publicId" element={<BinPage />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }
