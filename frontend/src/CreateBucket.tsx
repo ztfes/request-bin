@@ -225,15 +225,6 @@ export default function CreateBucket() {
                 );
               })}
             </ul>
-            <div className="bucket-list-tip">
-              <span className="bucket-list-tip-icon" aria-hidden="true">
-                {isChumBucket ? "💡" : <LightbulbIcon size={18} />}
-              </span>
-              <p>
-                <strong>Tip:</strong> You can create as many buckets as you need. Requests are stored in
-                real-time and accessible instantly.
-              </p>
-            </div>
           </div>
         )}
       </div>
