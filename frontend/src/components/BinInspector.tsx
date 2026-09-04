@@ -4,6 +4,7 @@ import { ApiError, binUrl, listBucketRequests } from '../lib/api'
 import { useBucketRequestFeed } from '../hooks/useBucketRequestFeed'
 import type { BucketRequestMessage, ConnectionStatus as ConnectionStatusValue } from '../lib/ws'
 import BinUrl from './BinUrl'
+import Brand from './Brand'
 import ConnectionStatus from './ConnectionStatus'
 import RequestDetail from './RequestDetail'
 import RequestList from './RequestList'
@@ -16,9 +17,11 @@ interface BinInspectorProps {
 function Header({ url, status }: { url: string; status?: ConnectionStatusValue }) {
   return (
     <header className="bin-inspector-header">
-      <h1>Bin Inspector</h1>
-      <BinUrl url={url} />
-      {status && <ConnectionStatus status={status} />}
+      <Brand />
+      <div className="bin-inspector-header-right">
+        <BinUrl url={url} />
+        {status && <ConnectionStatus status={status} />}
+      </div>
     </header>
   )
 }

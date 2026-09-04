@@ -1,53 +1,79 @@
 :root {
-  --text: #8891a5;
-  --text-h: #edeff3;
-  --bg: #0a0e14;
-  --panel-bg: #0e131b;
-  --panel-bg-raised: #131a24;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.14);
-  --code-bg: #0d121a;
-  --accent: #6d7cf7;
-  --accent-bg: rgba(109, 124, 247, 0.12);
-  --accent-border: rgba(109, 124, 247, 0.55);
-  --success: #22c55e;
-  --success-bg: rgba(34, 197, 94, 0.12);
-  --social-bg: rgba(19, 26, 36, 0.6);
+  /* Palette sampled from the Chum Bucket reference mockup: flat sky blue
+     page, white cards, purple as the primary accent, navy for headings. */
+  --sky: #5cc4e8;
+  --sky-deep: #3fb0da;
+  --brand-red: #e5473d;
+  --purple: #7c5cf5;
+  --purple-hover: #6a49e8;
+  --purple-soft: #ede9fe;
+  --teal: #0f857b;
+  --amber: #f0a327;
+  --coral: #ef6ba0;
+
+  --text: #64809b;
+  --text-h: #17395e;
+  --bg: var(--sky);
+  --panel-bg: #ffffff;
+  --panel-bg-raised: #f6f8fa;
+  --border: #e3e9f0;
+  --border-strong: #cbd6e2;
+  --code-bg: #f6f8fa;
+  --accent: var(--purple);
+  --accent-bg: var(--purple-soft);
+  --accent-border: var(--purple);
+  --success: #17a34a;
+  --success-bg: rgba(23, 163, 74, 0.12);
+  --danger: #e2352c;
+  --danger-border: #f3b5b1;
+  --social-bg: rgba(255, 255, 255, 0.7);
   --shadow:
-    rgba(0, 0, 0, 0.5) 0 10px 15px -3px, rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
+    rgba(23, 57, 94, 0.1) 0 8px 24px -6px, rgba(23, 57, 94, 0.06) 0 2px 6px -1px;
+  --shadow-card:
+    rgba(23, 57, 94, 0.08) 0 4px 16px -4px, rgba(23, 57, 94, 0.05) 0 1px 3px 0;
 
-  --method-get: #60a5fa;
-  --method-get-bg: rgba(59, 130, 246, 0.14);
-  --method-get-border: rgba(59, 130, 246, 0.4);
-  --method-post: #4ade80;
-  --method-post-bg: rgba(34, 197, 94, 0.14);
-  --method-post-border: rgba(34, 197, 94, 0.4);
-  --method-put: #fb923c;
-  --method-put-bg: rgba(249, 115, 22, 0.14);
-  --method-put-border: rgba(249, 115, 22, 0.4);
-  --method-patch: #c084fc;
-  --method-patch-bg: rgba(168, 85, 247, 0.14);
-  --method-patch-border: rgba(168, 85, 247, 0.4);
-  --method-delete: #f87171;
-  --method-delete-bg: rgba(239, 68, 68, 0.14);
-  --method-delete-border: rgba(239, 68, 68, 0.4);
+  /* Method badges are solid fills with white text in the reference, not
+     tinted outlines. PATCH and DELETE aren't in the mockup; they extend the
+     same set with hues that stay distinct from the three that are. */
+  --method-get: #0f857b;
+  --method-post: #8b5cf6;
+  --method-put: #f0a327;
+  --method-patch: var(--coral);
+  --method-delete: #e2352c;
 
+  /* JSON body colouring, matching the reference's amber keys / green
+     strings on a light code surface. */
+  --json-key: #b8791a;
+  --json-string: #2f8f4e;
+  --json-number: #c2410c;
+  --json-literal: #7c5cf5;
+
+  /* Heavy, slightly condensed uppercase display face for the wordmark and
+     section headers. Condensed variants ship with macOS and Windows
+     respectively, so no font download. */
+  --display: 'Avenir Next Condensed', 'Helvetica Neue', 'Arial Narrow',
+    system-ui, sans-serif;
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: var(--display);
   --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: dark;
+  font: 16px/145% var(--sans);
+  letter-spacing: 0.1px;
+  color-scheme: light;
   color: var(--text);
-  background: var(--bg);
+  /* Landing page and 404 sit on the pastel Bikini Bottom plate; the
+     inspector overrides this with the ocean plate (see App.css). */
+  background:
+    linear-gradient(180deg, rgba(92, 196, 232, 0.34), rgba(92, 196, 232, 0.16)),
+    url('./assets/background.jpg') center / cover no-repeat fixed,
+    var(--bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
   @media (max-width: 1024px) {
-    font-size: 16px;
+    font-size: 15px;
   }
 }
 
@@ -61,28 +87,101 @@
 
 body {
   margin: 0;
+  background: transparent;
+}
+
+/* Drifting bubbles, matching the outlined bubbles scattered through the
+   reference. Each gradient layer is one bubble stream; every tile is exactly
+   100vh tall so translating a full viewport up loops seamlessly, and the odd
+   tile widths keep the streams from lining up into a visible grid.
+   z-index -1 puts them above the page background but below all content. */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200vh;
+  z-index: -1;
+  pointer-events: none;
+  background-repeat: repeat;
+  animation: bubble-rise linear infinite;
+  will-change: transform;
+}
+
+body::before {
+  background-image:
+    radial-gradient(
+      circle at 28% 64%,
+      transparent 0 5px,
+      rgba(255, 255, 255, 0.55) 5px 7px,
+      transparent 7px
+    ),
+    radial-gradient(
+      circle at 72% 18%,
+      transparent 0 8px,
+      rgba(255, 255, 255, 0.4) 8px 10px,
+      transparent 10px
+    );
+  background-size: 173px 100vh, 241px 100vh;
+  animation-duration: 26s;
+}
+
+body::after {
+  background-image:
+    radial-gradient(
+      circle at 45% 82%,
+      transparent 0 3px,
+      rgba(255, 255, 255, 0.65) 3px 4px,
+      transparent 4px
+    ),
+    radial-gradient(
+      circle at 88% 40%,
+      transparent 0 11px,
+      rgba(255, 255, 255, 0.3) 11px 13px,
+      transparent 13px
+    );
+  background-size: 127px 100vh, 331px 100vh;
+  animation-duration: 41s;
+  animation-delay: -12s;
+}
+
+@keyframes bubble-rise {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100vh);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after {
+    animation: none;
+  }
 }
 
 h1,
 h2 {
-  font-family: var(--heading);
-  font-weight: 500;
+  font-family: var(--display);
+  font-weight: 700;
   color: var(--text-h);
 }
 
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
+  font-size: 44px;
+  letter-spacing: 0.5px;
+  margin: 0;
   @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+    font-size: 34px;
   }
 }
 h2 {
   font-size: 24px;
   line-height: 118%;
-  letter-spacing: -0.24px;
+  letter-spacing: 0.4px;
   margin: 0 0 8px;
   @media (max-width: 1024px) {
     font-size: 20px;
@@ -96,14 +195,49 @@ code,
 .counter {
   font-family: var(--mono);
   display: inline-flex;
-  border-radius: 4px;
+  border-radius: 6px;
   color: var(--text-h);
 }
 
 code {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
   border: 1px solid var(--border);
+}
+
+/* ---- Wordmark, shared by the landing page and the inspector header ---- */
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brand-name {
+  font-family: var(--display);
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--brand-red);
+  margin: 0;
+  /* Soft outer glow rather than a hard stroke: keeps the red readable
+     wherever the artwork behind it goes light. */
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.55),
+    0 4px 14px rgba(23, 57, 94, 0.18);
+
+  @media (max-width: 1024px) {
+    font-size: 34px;
+  }
+}
+
+.brand-tagline {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
 }

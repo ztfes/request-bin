@@ -3,32 +3,71 @@
   flex-direction: column;
   flex-grow: 1;
   text-align: left;
-  background: var(--bg);
+  padding: 24px;
+  gap: 20px;
+  box-sizing: border-box;
+  /* The ocean plate under a sky wash: the reference reads as flat blue with
+     flower and bubble motifs, so the artwork is knocked back until it sits
+     behind the cards rather than competing with them. */
+  background:
+    linear-gradient(180deg, rgba(92, 196, 232, 0.8), rgba(92, 196, 232, 0.72)),
+    url('./assets/vecteezy_cartoon-bottom-of-ocean-landscape_24986756.jpg')
+      center / cover no-repeat fixed;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 }
 
+/* Transparent in the reference: the wordmark sits directly on the blue and
+   only the URL is carded. */
 .bin-inspector-header {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg);
+}
 
-  h1 {
-    font-size: 20px;
-    font-family: var(--heading);
-    font-weight: 600;
-    margin: 0;
-    color: var(--text-h);
-  }
+.bin-inspector-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+/* Sits on the blue rather than on a card, so it carries its own chip. */
+.bin-inspector-header-right .connection-status {
+  background: rgba(255, 255, 255, 0.88);
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  box-shadow: var(--shadow-card);
+}
+
+.bin-url-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--panel-bg);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.bin-url-label {
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-h);
 }
 
 .bin-url-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .bin-url {
@@ -37,35 +76,60 @@
   font-family: var(--mono);
   font-size: 13px;
   color: var(--text-h);
-  max-width: 60vw;
+  max-width: 46vw;
   overflow-x: auto;
   white-space: nowrap;
-  background: var(--panel-bg);
+  background: var(--code-bg);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 14px;
+  border-radius: 10px;
+  padding: 10px 14px;
 }
 
-.copy-button,
-.status button {
+/* Filled purple square in the reference, icon only. */
+.copy-button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   font: inherit;
   font-family: var(--sans);
-  font-size: 13px;
-  font-weight: 500;
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--panel-bg);
-  color: var(--text-h);
+  font-size: 0;
+  padding: 11px;
+  border-radius: 10px;
+  border: none;
+  background: var(--purple);
+  color: #fff;
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: background 0.15s ease, transform 0.15s ease;
 
   &:hover {
-    border-color: var(--accent-border);
-    background: var(--panel-bg-raised);
+    background: var(--purple-hover);
+    transform: translateY(-1px);
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.status button {
+  font: inherit;
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  background: var(--purple);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--purple-hover);
   }
 }
 
@@ -82,6 +146,10 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  padding: 32px;
+  background: var(--panel-bg);
+  border-radius: 18px;
+  box-shadow: var(--shadow-card);
   color: var(--text);
   font-family: var(--sans);
 }
@@ -94,11 +162,15 @@
   margin: auto;
   text-align: center;
   max-width: 480px;
-  padding: 32px;
+  padding: 40px 32px;
   color: var(--text);
+  background: var(--panel-bg);
+  border-radius: 18px;
+  box-shadow: var(--shadow-card);
 
   h2 {
     color: var(--text-h);
+    text-transform: uppercase;
   }
 }
 
@@ -107,123 +179,173 @@
   flex-grow: 1;
   min-height: 0;
   width: 100%;
+  gap: 20px;
+}
+
+/* ---- Left card: caught requests ---- */
+
+.request-list-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  background: var(--panel-bg);
+  border-radius: 18px;
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 24px 14px;
+
+  h2 {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-h);
+    margin: 0;
+  }
+
+  .panel-header-icon {
+    color: var(--purple);
+    flex-shrink: 0;
+  }
 }
 
 .request-list {
   list-style: none;
   margin: 0;
-  padding: 0;
-  width: 340px;
-  flex-shrink: 0;
+  padding: 0 16px 16px;
   overflow-y: auto;
-  border-right: 1px solid var(--border);
-  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .request-list-item {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 14px;
   width: 100%;
-  padding: 14px 16px;
-  border: 1px solid transparent;
-  border-bottom: 1px solid var(--border);
-  background: none;
+  padding: 12px 14px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: var(--panel-bg-raised);
   font: inherit;
   text-align: left;
   cursor: pointer;
   color: var(--text);
-  transition: background 0.12s ease, border-color 0.12s ease;
+  box-sizing: border-box;
+  transition: background 0.12s ease, border-color 0.12s ease,
+    box-shadow 0.12s ease;
 
   &:hover {
-    background: var(--panel-bg);
+    background: #fff;
+    border-color: var(--border-strong);
   }
 
   &[aria-current='true'] {
-    background: var(--panel-bg-raised);
-    border: 1px solid var(--accent-border);
+    background: #fff;
+    border-color: var(--purple);
+    box-shadow: rgba(124, 92, 245, 0.18) 0 0 0 4px;
   }
 
   .path {
     color: var(--text-h);
     font-family: var(--mono);
     font-size: 14px;
-    max-width: 100%;
+    font-weight: 600;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .received-at {
-    align-self: flex-end;
-    font-size: 12px;
+    font-size: 13px;
     color: var(--text);
+    white-space: nowrap;
+  }
+
+  .chevron {
+    color: var(--border-strong);
+    flex-shrink: 0;
   }
 }
 
+/* Solid fills with white text, as in the reference. */
 .method {
   display: inline-flex;
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.4px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  border: 1px solid transparent;
+  align-items: center;
+  justify-content: center;
+  min-width: 62px;
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  color: #fff;
 }
 
 .method-get {
-  color: var(--method-get);
-  background: var(--method-get-bg);
-  border-color: var(--method-get-border);
+  background: var(--method-get);
 }
 .method-post {
-  color: var(--method-post);
-  background: var(--method-post-bg);
-  border-color: var(--method-post-border);
+  background: var(--method-post);
 }
 .method-put {
-  color: var(--method-put);
-  background: var(--method-put-bg);
-  border-color: var(--method-put-border);
+  background: var(--method-put);
 }
 .method-patch {
-  color: var(--method-patch);
-  background: var(--method-patch-bg);
-  border-color: var(--method-patch-border);
+  background: var(--method-patch);
 }
 .method-delete {
-  color: var(--method-delete);
-  background: var(--method-delete-bg);
-  border-color: var(--method-delete-border);
+  background: var(--method-delete);
 }
 
+/* ---- Right card: request detail ---- */
+
 .request-detail {
-  flex-grow: 1;
+  flex: 1 1 0;
+  min-width: 0;
   overflow-y: auto;
   padding: 24px;
-  background: var(--bg);
+  background: var(--panel-bg);
+  border-radius: 18px;
+  box-shadow: var(--shadow-card);
+  box-sizing: border-box;
 
   h3 {
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
-    color: var(--accent);
-    margin: 24px 0 8px;
+    color: var(--text-h);
+    margin: 26px 0 10px;
   }
 }
 
 .request-detail-header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 
   .path {
     font-family: var(--mono);
-    font-size: 15px;
+    font-size: 17px;
+    font-weight: 600;
     color: var(--text-h);
     word-break: break-all;
   }
@@ -238,15 +360,15 @@
   width: 100%;
   font-size: 13px;
   font-family: var(--mono);
-  background: var(--panel-bg);
+  background: var(--code-bg);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
 
   th,
   td {
     text-align: left;
-    padding: 8px 12px;
+    padding: 9px 14px;
     border-bottom: 1px solid var(--border);
     vertical-align: top;
     word-break: break-word;
@@ -258,8 +380,8 @@
   }
 
   th {
-    font-weight: 500;
-    color: var(--accent);
+    font-weight: 600;
+    color: var(--json-key);
     white-space: nowrap;
   }
 
@@ -271,26 +393,47 @@
 .body {
   font-family: var(--mono);
   font-size: 13px;
+  line-height: 165%;
   color: var(--text-h);
-  background: var(--panel-bg);
+  background: var(--code-bg);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 14px;
+  border-radius: 12px;
+  padding: 16px;
   max-height: 400px;
   overflow: auto;
   white-space: pre-wrap;
   word-break: break-word;
 }
 
-@media (max-width: 768px) {
+/* Applied only when the body parses as JSON; anything else renders plain. */
+.json-key {
+  color: var(--json-key);
+}
+.json-string {
+  color: var(--json-string);
+}
+.json-number {
+  color: var(--json-number);
+}
+.json-literal {
+  color: var(--json-literal);
+}
+
+@media (max-width: 900px) {
   .panes {
     flex-direction: column;
   }
 
-  .request-list {
-    width: 100%;
-    max-height: 260px;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
+  .request-list-panel {
+    flex: 0 0 auto;
+    max-height: 300px;
+  }
+
+  .request-detail {
+    flex: 1 1 auto;
+  }
+
+  .bin-url {
+    max-width: 100%;
   }
 }

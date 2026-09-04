@@ -1,34 +1,41 @@
+/* Sits directly on the pastel plate, so it carries its own contrast. */
 .not-found {
   margin: auto;
   text-align: center;
   max-width: 420px;
-  padding: 32px;
+  padding: 40px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  background: var(--panel-bg);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
 }
 
 .not-found h2 {
   margin: 0;
+  text-transform: uppercase;
 }
 
 .not-found .secondary-button {
   display: inline-flex;
   margin-top: 8px;
-  font-family: var(--sans);
-  font-size: 14px;
-  font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--panel-bg);
-  color: var(--text-h);
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 11px 22px;
+  border-radius: 12px;
+  border: none;
+  background: var(--purple);
+  color: #fff;
   text-decoration: none;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
 
 .not-found .secondary-button:hover {
-  border-color: var(--accent-border);
-  background: var(--panel-bg-raised);
+  background: var(--purple-hover);
+  transform: translateY(-1px);
 }
