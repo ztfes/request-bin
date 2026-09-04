@@ -6,6 +6,7 @@ from fastapi import  APIRouter, Depends, HTTPException, Request, Response, statu
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
 
+from db.mongo import get_requests_collection
 from models.bucket import Bucket
 from models.bucket_request import BucketRequest
 from models.database import get_db
@@ -100,3 +101,36 @@ def get_bucket_request(
             status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
 
     return bucket_request
+
+
+# Is the route handler for DELETE /buckets/{public_id}
+@router.delete("/buckets/{public_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_bucket(
+    public_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    owner_token: str = Header(...),
+) -> Response:
+    """Delete a bucket along with every request captured into it."""
+    bucket = db.query(Bucket).filter(Bucket.public_id == public_id).first()
+
+    if bucket is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Bucket not found")
+
+    if bucket.owner_token != owner_token:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this bucket")
+
+    # Mongo first, then Postgres. If the second half fails the caller can just
+    # retry: delete_many is a no-op the second time round and the rows are still
+    # there to remove. Doing it the other way would leave documents in
+    # captured_requests with no bucket row left to find them by.
+    get_requests_collection().delete_many({"bucket_id": bucket.bucket_id})
+
+    db.query(BucketRequest).filter(
+        BucketRequest.bucket_id == bucket.bucket_id
+    ).delete(synchronize_session=False)
+    db.delete(bucket)
+    db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

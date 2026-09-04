@@ -1,34 +1,46 @@
 .not-found {
+  flex-grow: 1;
+  display: flex;
+  padding: var(--s4) clamp(16px, 4vw, 40px) var(--s6);
+}
+
+.not-found-card {
   margin: auto;
-  text-align: center;
-  max-width: 420px;
-  padding: 32px;
+  max-width: 440px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: var(--s2);
+  text-align: center;
+  font-weight: 600;
 }
 
-.not-found h2 {
-  margin: 0;
+.not-found-art {
+  position: relative;
 }
 
-.not-found .secondary-button {
-  display: inline-flex;
-  margin-top: 8px;
-  font-family: var(--sans);
-  font-size: 14px;
-  font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--panel-bg);
-  color: var(--text-h);
-  text-decoration: none;
-  transition: border-color 0.15s ease, background 0.15s ease;
+.not-found-pail {
+  transform: rotate(-22deg);
 }
 
-.not-found .secondary-button:hover {
-  border-color: var(--accent-border);
-  background: var(--panel-bg-raised);
+.not-found-bubble {
+  position: absolute;
+  top: -6px;
+  right: -14px;
+  animation: not-found-drift 4.5s ease-in-out infinite alternate;
+}
+
+@keyframes not-found-drift {
+  from {
+    transform: translate3d(0, 5px, 0) scale(0.9);
+  }
+  to {
+    transform: translate3d(4px, -7px, 0) scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .not-found-bubble {
+    animation: none;
+  }
 }

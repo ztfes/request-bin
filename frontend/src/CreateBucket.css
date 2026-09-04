@@ -1,122 +1,332 @@
 .create-bucket {
-  max-width: 640px;
+  width: 100%;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 48px 24px;
-  text-align: left;
-}
-
-.create-bucket h2 {
-  font-size: 28px;
-}
-
-.create-bucket .subtitle {
-  font-family: var(--sans);
-  font-size: 15px;
-  font-weight: 400;
-  color: var(--text);
-  margin: 0 0 24px;
-}
-
-.create-bucket .primary-button {
-  font: inherit;
-  font-family: var(--sans);
-  font-size: 14px;
-  font-weight: 600;
-  padding: 10px 18px;
-  border-radius: 8px;
-  border: 1px solid var(--accent-border);
-  background: var(--accent-bg);
-  color: var(--text-h);
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.create-bucket .primary-button:hover {
-  background: var(--panel-bg-raised);
-  border-color: var(--accent);
-}
-
-.create-bucket .error-message {
-  color: var(--method-delete);
-  margin-top: 12px;
-}
-
-.create-bucket .new-bucket-panel {
-  margin-top: 24px;
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--panel-bg);
+  padding: clamp(24px, 5vw, 56px) clamp(16px, 4vw, 40px) var(--s6);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--s5);
 }
 
-.create-bucket .new-bucket-url {
-  font-family: var(--mono);
+/* --- Hero: pail on the left, copy and the action stacked beside it -------- */
+
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: clamp(16px, 4vw, 40px);
+}
+
+.hero-pail {
+  flex-shrink: 0;
+  margin-top: var(--s1);
+}
+
+.hero-copy {
+  flex: 1 1 320px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s2);
+}
+
+.hero-copy .flower-button {
+  /* The petal outline sits inside its box, so nudge it back into alignment
+     with the heading above. */
+  margin-left: -18px;
+  margin-top: var(--s1);
+}
+
+.hero-squiggle {
+  width: min(260px, 70%);
+  height: 12px;
+  margin: 2px 0 var(--s2);
+  opacity: 0.9;
+}
+
+.hero-prompt {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+}
+
+/* --- Freshly created bucket ---------------------------------------------- */
+
+.note {
+  font-family: var(--display);
+  font-weight: 600;
+  padding: 12px 20px;
+  border: var(--line) solid var(--ink);
+  border-radius: var(--blob-s);
+  background: var(--cream);
+  align-self: flex-start;
+}
+
+.note-error {
+  background: var(--coral-wash);
+  border-color: var(--coral);
+}
+
+.new-bucket {
+  max-width: 620px;
+  padding: var(--s3);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s2);
+}
+
+.new-bucket-lead {
+  font-family: var(--display);
   font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+}
+
+.new-bucket-url {
+  display: inline-block;
+  max-width: 100%;
+  font-size: 15px;
+  padding: 9px 14px;
+  color: var(--ink);
+  background: var(--cream-2);
+  border-radius: var(--blob-s);
   word-break: break-all;
 }
 
-.create-bucket .button-row {
+.button-row {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s1);
 }
 
-.create-bucket .secondary-button {
-  font: inherit;
-  font-family: var(--sans);
+/* --- Saved buckets: one plain box, one row per bucket --------------------- */
+
+.buckets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+
+.buckets-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+
+.buckets-head-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.buckets-edit {
   font-size: 13px;
-  font-weight: 500;
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--panel-bg);
-  color: var(--text-h);
-  cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  padding: 10px 18px;
 }
 
-.create-bucket .secondary-button:hover {
-  border-color: var(--accent-border);
-  background: var(--panel-bg-raised);
+.buckets-hint {
+  max-width: 62ch;
+  font-size: 14px;
+  margin-top: calc(var(--s3) * -1 + 4px);
 }
 
-.create-bucket .section-label {
-  font-family: var(--sans);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin: 32px 0 12px;
+.section-title {
+  font-size: clamp(19px, 2.4vw, 24px);
 }
 
-.create-bucket .bucket-list {
+.section-sub {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.bucket-box {
+  padding: var(--s2);
+}
+
+.bucket-box-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--s4);
+  text-align: center;
+}
+
+.empty-pail {
+  opacity: 0.6;
+  margin-bottom: var(--s2);
+}
+
+.bucket-list {
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+.bucket-list li + li {
+  border-top: 2px dotted var(--ink-ghost);
+}
+
+.bucket-item {
+  display: flex;
+  align-items: center;
+  gap: var(--s1);
+}
+
+.bucket-row {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 12px 14px;
+  font: inherit;
+  text-align: left;
+  color: var(--ink);
+  background: none;
+  border: none;
+  border-radius: var(--blob-s);
+  cursor: pointer;
+  transition:
+    background-color 0.16s ease,
+    transform 0.2s var(--spring);
+}
+
+.bucket-row-copy {
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 1px;
 }
 
-.create-bucket .bucket-list-item {
-  width: 100%;
-  font: inherit;
-  font-family: var(--mono);
+.bucket-row-name {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+.bucket-row-id {
   font-size: 13px;
-  text-align: left;
-  padding: 10px 14px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--panel-bg);
-  color: var(--text-h);
-  cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  color: var(--ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.create-bucket .bucket-list-item:hover {
-  border-color: var(--accent-border);
-  background: var(--panel-bg-raised);
+.bucket-row-arrow {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: var(--coral);
+  transition: transform 0.25s var(--spring);
+}
+
+.bucket-row:hover {
+  background: var(--cream-2);
+}
+
+.bucket-row:hover .bucket-row-arrow {
+  transform: translateX(4px);
+}
+
+.bucket-row:active {
+  transform: translateX(2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bucket-row,
+  .bucket-row-arrow {
+    transition: none;
+  }
+
+  .bucket-row:hover .bucket-row-arrow,
+  .bucket-row:active {
+    transform: none;
+  }
+}
+
+/* --- Edit mode ------------------------------------------------------------ */
+
+.bucket-delete {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-right: 4px;
+  color: var(--coral);
+  background: none;
+  border: 2px solid transparent;
+  border-radius: var(--blob-s);
+  cursor: pointer;
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    transform 0.2s var(--spring);
+}
+
+.bucket-delete:hover {
+  background: var(--coral-wash);
+  border-color: var(--coral);
+  transform: rotate(-6deg);
+}
+
+.bucket-delete:active {
+  transform: scale(0.94);
+}
+
+.bucket-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--coral-wash);
+  border-radius: var(--blob-s);
+}
+
+.bucket-confirm-text {
+  font-size: 15px;
+}
+
+.bucket-confirm-text strong {
+  font-family: var(--display);
+  font-weight: 600;
+}
+
+.bucket-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1);
+}
+
+.bucket-confirm-actions .ink-button {
+  font-size: 13px;
+  padding: 9px 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bucket-delete {
+    transition: none;
+  }
+
+  .bucket-delete:hover,
+  .bucket-delete:active {
+    transform: none;
+  }
 }

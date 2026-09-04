@@ -5,8 +5,10 @@ import { useBucketRequestFeed } from '../hooks/useBucketRequestFeed'
 import type { BucketRequestMessage, ConnectionStatus as ConnectionStatusValue } from '../lib/ws'
 import BinUrl from './BinUrl'
 import ConnectionStatus from './ConnectionStatus'
+import { Bubble, Bucket as PailArt, Flower, RefreshDoodle } from './Doodles'
 import RequestDetail from './RequestDetail'
 import RequestList from './RequestList'
+import SiteHeader from './SiteHeader'
 
 interface BinInspectorProps {
   publicId: string
@@ -15,11 +17,13 @@ interface BinInspectorProps {
 
 function Header({ url, status }: { url: string; status?: ConnectionStatusValue }) {
   return (
-    <header className="bin-inspector-header">
-      <h1>Bin Inspector</h1>
-      <BinUrl url={url} />
-      {status && <ConnectionStatus status={status} />}
-    </header>
+    <div className="bin-bar">
+      <h1 className="bin-title">Bin Inspector</h1>
+      <div className="bin-bar-row">
+        <BinUrl url={url} />
+        {status && <ConnectionStatus status={status} />}
+      </div>
+    </div>
   )
 }
 
@@ -28,10 +32,12 @@ function BinInspector({ publicId, ownerToken }: BinInspectorProps) {
 
   if (!ownerToken) {
     return (
-      <div className="bin-inspector">
+      <div className="page bin-inspector">
+        <SiteHeader />
         <Header url={url} />
         <main className="bin-inspector-body">
-          <div className="status error">
+          <div className="paper lifted state-card state-card-error">
+            <PailArt size={72} className="state-pail state-pail-tipped" />
             <p>No access token found for this bin in this browser.</p>
           </div>
         </main>
@@ -104,25 +110,41 @@ function BinInspectorContent({ publicId, ownerToken, url }: BinInspectorContentP
   }
 
   return (
-    <div className="bin-inspector">
+    <div className="page bin-inspector">
+      <SiteHeader />
       <Header url={url} status={wsStatus} />
 
       <main className="bin-inspector-body">
-        {state.status === 'loading' && <p className="status">Loading requests…</p>}
+        {state.status === 'loading' && (
+          <div className="paper lifted state-card">
+            <div className="loading-bubbles" aria-hidden="true">
+              <Bubble color="foam" size={26} />
+              <Bubble color="sunny" size={20} />
+              <Bubble color="lime" size={15} />
+            </div>
+            <p>Filling the bucket…</p>
+          </div>
+        )}
 
         {state.status === 'error' && (
-          <div className="status error">
+          <div className="paper lifted state-card state-card-error">
+            <PailArt size={72} className="state-pail state-pail-tipped" />
             <p>{state.message}</p>
-            <button type="button" onClick={retry}>
+            <button type="button" className="ink-button ink-button--sunny" onClick={retry}>
+              <RefreshDoodle size={18} />
               Retry
             </button>
           </div>
         )}
 
         {state.status === 'loaded' && requests.length === 0 && (
-          <div className="empty-state">
+          <div className="paper lifted state-card">
+            <div className="empty-art" aria-hidden="true">
+              <PailArt size={96} className="state-pail" />
+              <Flower color="lime" size={44} seed={1.2} strokeWidth={9} className="empty-bloom" />
+            </div>
             <h2>No requests yet</h2>
-            <p>Send a request to the URL above and it will show up here.</p>
+            <p className="muted">Send a request to the URL above and it will show up here.</p>
           </div>
         )}
 

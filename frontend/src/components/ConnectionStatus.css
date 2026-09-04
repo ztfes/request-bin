@@ -1,62 +1,77 @@
+/* A bubble that tells you whether the feed is still breathing. */
 .connection-status {
   display: inline-flex;
   align-items: center;
-  gap: 0.4em;
-  font-family: var(--sans);
-  font-size: 0.8em;
-  font-weight: 500;
-  color: var(--connection-status-color, var(--text));
+  gap: 8px;
+  padding: 8px 16px;
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--connection-status-color, var(--ink));
+  background: var(--connection-status-wash, var(--cream));
+  border: 2.5px solid currentColor;
+  border-radius: var(--pill);
 }
 
 .connection-status-dot {
-  width: 0.55em;
-  height: 0.55em;
-  border-radius: 50%;
-  background: currentColor;
+  flex-shrink: 0;
+  transform-origin: 50% 50%;
 }
 
 .connection-status-open {
-  --connection-status-color: var(--success);
+  --connection-status-color: #4f8a1e;
+  --connection-status-wash: var(--lime-wash);
 }
 
 .connection-status-open .connection-status-dot {
-  animation: connection-status-pulse 2s ease-in-out infinite;
+  animation: connection-status-pulse 2.4s ease-in-out infinite alternate;
 }
 
 .connection-status-connecting,
 .connection-status-reconnecting {
-  --connection-status-color: var(--method-put);
+  --connection-status-color: #c1701f;
+  --connection-status-wash: var(--tangerine-wash);
 }
 
 .connection-status-reconnecting .connection-status-dot {
-  animation: connection-status-blink 1s steps(1) infinite;
+  animation: connection-status-wobble 1.4s ease-in-out infinite;
 }
 
 .connection-status-closed {
-  --connection-status-color: var(--text);
+  --connection-status-color: var(--ink-2);
+  --connection-status-wash: var(--cream-2);
 }
 
 .connection-status-not-found {
-  --connection-status-color: var(--method-delete);
+  --connection-status-color: var(--coral);
+  --connection-status-wash: var(--coral-wash);
 }
 
 @keyframes connection-status-pulse {
-  0%,
-  100% {
-    opacity: 1;
+  from {
+    transform: scale(0.86);
+    opacity: 0.7;
   }
-  50% {
-    opacity: 0.5;
+  to {
+    transform: scale(1.12);
+    opacity: 1;
   }
 }
 
-@keyframes connection-status-blink {
+@keyframes connection-status-wobble {
   0%,
-  49% {
-    opacity: 1;
-  }
-  50%,
   100% {
-    opacity: 0.35;
+    transform: rotate(-14deg) scale(0.95);
+  }
+  50% {
+    transform: rotate(14deg) scale(1.05);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .connection-status-dot {
+    animation: none !important;
   }
 }

@@ -1,4 +1,5 @@
 import type { ConnectionStatus as ConnectionStatusValue } from '../lib/ws'
+import { Bubble } from './Doodles'
 import './ConnectionStatus.css'
 
 const LABELS: Record<ConnectionStatusValue, string> = {
@@ -16,7 +17,7 @@ interface ConnectionStatusProps {
 function ConnectionStatus({ status }: ConnectionStatusProps) {
   return (
     <span className={`connection-status connection-status-${status}`} role="status">
-      <span className="connection-status-dot" aria-hidden="true" />
+      <Bubble color="currentColor" size={16} strokeWidth={10} className="connection-status-dot" />
       {LABELS[status]}
     </span>
   )

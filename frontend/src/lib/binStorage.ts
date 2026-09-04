@@ -40,3 +40,14 @@ export function addStoredBucket(bucket: StoredBucket): StoredBucket[] {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
   return updated
 }
+
+/**
+ * Drops a bucket from this browser's list. The bucket itself lives on the
+ * server — there is no delete endpoint — so this only discards the local key,
+ * which is what actually gates access to it.
+ */
+export function removeStoredBucket(publicId: string): StoredBucket[] {
+  const updated = getStoredBuckets().filter((b) => b.public_id !== publicId)
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+  return updated
+}

@@ -1,0 +1,93 @@
+.flower-button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  /* Square, but never wider than a phone; the label scales with it so the
+     words always stay inside the petals. */
+  width: min(var(--fb-size, 200px), 62vw);
+  aspect-ratio: 1;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  filter: drop-shadow(4px 5px 0 rgba(30, 58, 84, 0.16));
+  transition: transform 0.3s var(--spring);
+}
+
+.flower-button-art,
+.flower-button-label {
+  grid-area: 1 / 1;
+}
+
+.flower-button-art {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  /* The bloom spins under the label; the label itself stays level. */
+  transform-origin: 50% 50%;
+  transition: transform 0.42s var(--spring);
+}
+
+.flower-button-face {
+  fill: var(--fb-color);
+  stroke: var(--ink);
+  stroke-width: 7;
+  stroke-linejoin: round;
+}
+
+.flower-button-halo {
+  stroke: var(--ink);
+  stroke-width: 4;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.flower-button-label {
+  position: relative;
+  max-width: 56%;
+  font-family: var(--display);
+  font-size: clamp(15px, 3.6vw, 17px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0.005em;
+  text-align: center;
+  color: var(--cream);
+}
+
+.flower-button:hover {
+  transform: translateY(-4px);
+}
+
+.flower-button:hover .flower-button-art {
+  transform: rotate(11deg) scale(1.04);
+}
+
+.flower-button:active {
+  transform: translateY(3px);
+}
+
+.flower-button:active .flower-button-art {
+  transform: rotate(5deg) scale(0.955);
+}
+
+.flower-button:focus-visible {
+  outline: none;
+}
+
+.flower-button:focus-visible .flower-button-halo {
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flower-button,
+  .flower-button-art {
+    transition: none;
+  }
+
+  .flower-button:hover,
+  .flower-button:active,
+  .flower-button:hover .flower-button-art,
+  .flower-button:active .flower-button-art {
+    transform: none;
+  }
+}
