@@ -1,48 +1,58 @@
 import { useEffect, useMemo, useState } from 'react'
 import '../App.css'
-import { ApiError, binUrl, listBucketRequests } from '../lib/api'
+import { ApiError, bucketUrl, listBucketRequests } from '../lib/api'
 import { useBucketRequestFeed } from '../hooks/useBucketRequestFeed'
+import { useTheme } from '../theme/ThemeContext'
 import type { BucketRequestMessage, ConnectionStatus as ConnectionStatusValue } from '../lib/ws'
-import BinUrl from './BinUrl'
+import BucketUrl from './BucketUrl'
+import BrandMark from './BrandMark'
 import ConnectionStatus from './ConnectionStatus'
 import RequestDetail from './RequestDetail'
 import RequestList from './RequestList'
 
-interface BinInspectorProps {
+interface BucketInspectorProps {
   publicId: string
   ownerToken: string | null
 }
 
 function Header({ url, status }: { url: string; status?: ConnectionStatusValue }) {
+  const { theme } = useTheme()
+  const isChumBucket = theme === 'chum-bucket'
+
   return (
-    <header className="bin-inspector-header">
-      <h1>Bin Inspector</h1>
-      <BinUrl url={url} />
+    <header className="bucket-inspector-header">
+      {isChumBucket ? <BrandMark /> : <h1>Bucket Inspector</h1>}
+
+      <div className="bucket-url-card">
+        <span className="bucket-url-card-label">Your bucket URL</span>
+        <BucketUrl url={url} />
+      </div>
+
       {status && <ConnectionStatus status={status} />}
     </header>
   )
 }
 
-function BinInspector({ publicId, ownerToken }: BinInspectorProps) {
-  const url = binUrl(publicId)
+function BucketInspector({ publicId, ownerToken }: BucketInspectorProps) {
+  const url = bucketUrl(publicId)
 
   if (!ownerToken) {
     return (
-      <div className="bin-inspector">
+      <div className="bucket-inspector">
         <Header url={url} />
-        <main className="bin-inspector-body">
+        <main className="bucket-inspector-body">
           <div className="status error">
-            <p>No access token found for this bin in this browser.</p>
+            <p>No access token found for this bucket in this browser.</p>
           </div>
         </main>
       </div>
     )
   }
 
-  return <BinInspectorContent publicId={publicId} ownerToken={ownerToken} url={url} />
+  return <BucketInspectorContent publicId={publicId} ownerToken={ownerToken} url={url} />
 }
 
-interface BinInspectorContentProps {
+interface BucketInspectorContentProps {
   publicId: string
   ownerToken: string
   url: string
@@ -61,7 +71,8 @@ function sortByReceivedAtDesc(requests: BucketRequestMessage[]): BucketRequestMe
   )
 }
 
-function BinInspectorContent({ publicId, ownerToken, url }: BinInspectorContentProps) {
+function BucketInspectorContent({ publicId, ownerToken, url }: BucketInspectorContentProps) {
+  const { theme } = useTheme()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   // `null` means "follow the newest request". Only an explicit click pins one,
   // so live arrivals render immediately until the user picks a request.
@@ -104,10 +115,10 @@ function BinInspectorContent({ publicId, ownerToken, url }: BinInspectorContentP
   }
 
   return (
-    <div className="bin-inspector">
+    <div className="bucket-inspector">
       <Header url={url} status={wsStatus} />
 
-      <main className="bin-inspector-body">
+      <main className="bucket-inspector-body">
         {state.status === 'loading' && <p className="status">Loading requests…</p>}
 
         {state.status === 'error' && (
@@ -121,18 +132,30 @@ function BinInspectorContent({ publicId, ownerToken, url }: BinInspectorContentP
 
         {state.status === 'loaded' && requests.length === 0 && (
           <div className="empty-state">
-            <h2>No requests yet</h2>
-            <p>Send a request to the URL above and it will show up here.</p>
+            <h2>{theme === 'chum-bucket' ? 'No chumm in the bucket yet' : 'No requests yet'}</h2>
+            <p>
+              {theme === 'chum-bucket'
+                ? 'Send a request to the URL above and watch the chumm roll in.'
+                : 'Send a request to the URL above and it will show up here.'}
+            </p>
           </div>
         )}
 
         {state.status === 'loaded' && requests.length > 0 && (
           <div className="panes">
-            <RequestList
-              requests={requests}
-              selectedId={selectedId}
-              onSelect={setPinnedId}
-            />
+            <div className="request-list-pane">
+              {theme === 'chum-bucket' && (
+                <div className="request-list-pane-header">
+                  <span aria-hidden="true">〰</span>
+                  Caught requests
+                </div>
+              )}
+              <RequestList
+                requests={requests}
+                selectedId={selectedId}
+                onSelect={setPinnedId}
+              />
+            </div>
             <RequestDetail request={selected} />
           </div>
         )}
@@ -141,4 +164,4 @@ function BinInspectorContent({ publicId, ownerToken, url }: BinInspectorContentP
   )
 }
 
-export default BinInspector
+export default BucketInspector

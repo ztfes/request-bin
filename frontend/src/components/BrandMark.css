@@ -1,0 +1,58 @@
+.brand-mark {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.brand-mark-icon {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 6px rgba(23, 36, 74, 0.25));
+}
+
+.brand-mark-title {
+  font-family: var(--display);
+  font-size: 34px;
+  line-height: 0.92;
+  color: var(--brand);
+  -webkit-text-stroke: 2px #14131a;
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.25);
+  letter-spacing: 0.5px;
+}
+
+.brand-mark-divider {
+  align-self: stretch;
+  width: 2px;
+  margin: 4px 4px;
+  background: var(--border-strong);
+}
+
+.brand-mark-subtitle {
+  font-family: var(--heading);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text-h);
+}
+
+@media (max-width: 640px) {
+  .brand-mark-icon {
+    width: 52px;
+    height: 52px;
+  }
+
+  .brand-mark-title {
+    font-size: 24px;
+  }
+
+  .brand-mark-subtitle {
+    font-size: 14px;
+  }
+
+  .brand-mark-divider {
+    display: none;
+  }
+}

@@ -54,6 +54,6 @@ export function getBucketRequest(publicId: string, requestId: number, ownerToken
   return apiGet<BucketRequestOut>(`/buckets/${publicId}/requests/${requestId}`, ownerToken)
 }
 
-export function binUrl(publicId: string): string {
+export function bucketUrl(publicId: string): string {
   return `${API_BASE}/${publicId}`
 }

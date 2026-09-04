@@ -51,12 +51,70 @@
   }
 }
 
+/* "Chum Bucket" theme — see 260-45. Bright Bikini-Bottom daytime palette
+   matching cb_inspo.png: sky-blue background photo, white/lavender cards,
+   navy text, purple accent, red/orange bubble-letter wordmark. */
+:root[data-theme='chum-bucket'] {
+  --text: #4a5a80;
+  --text-h: #17244a;
+  --bg: transparent;
+  --panel-bg: rgba(255, 255, 255, 0.92);
+  --panel-bg-raised: #ffffff;
+  --border: rgba(23, 36, 74, 0.1);
+  --border-strong: rgba(23, 36, 74, 0.2);
+  --code-bg: #eef0fb;
+  --accent: #6d4fe0;
+  --accent-bg: rgba(109, 79, 224, 0.12);
+  --accent-border: rgba(109, 79, 224, 0.5);
+  --success: #22c55e;
+  --success-bg: rgba(34, 197, 94, 0.16);
+  --social-bg: rgba(255, 255, 255, 0.7);
+  --shadow:
+    rgba(23, 43, 82, 0.16) 0 10px 25px -5px, rgba(23, 43, 82, 0.08) 0 4px 10px -4px;
+
+  --brand: #f1471f;
+  --brand-bg: rgba(241, 71, 31, 0.12);
+  --brand-border: rgba(241, 71, 31, 0.5);
+
+  --method-get: #2563eb;
+  --method-get-bg: rgba(37, 99, 235, 0.12);
+  --method-get-border: rgba(37, 99, 235, 0.4);
+  --method-post: #16a34a;
+  --method-post-bg: rgba(22, 163, 74, 0.12);
+  --method-post-border: rgba(22, 163, 74, 0.4);
+  --method-put: #ea580c;
+  --method-put-bg: rgba(234, 88, 12, 0.12);
+  --method-put-border: rgba(234, 88, 12, 0.4);
+  --method-patch: #9333ea;
+  --method-patch-bg: rgba(147, 51, 234, 0.12);
+  --method-patch-border: rgba(147, 51, 234, 0.4);
+  --method-delete: #dc2626;
+  --method-delete-bg: rgba(220, 38, 38, 0.12);
+  --method-delete-border: rgba(220, 38, 38, 0.4);
+
+  --display: 'Luckiest Guy', cursive, var(--sans);
+  --sans: 'Baloo 2', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Baloo 2', system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  color-scheme: light;
+  background-image: url('/chumm_bucket_bg.png');
+  background-size: cover;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 #root {
   width: 100%;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
 }
 
 body {

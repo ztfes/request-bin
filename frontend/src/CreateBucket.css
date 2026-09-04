@@ -1,5 +1,26 @@
+.create-bucket-page {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.create-bucket-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.create-bucket-header h1 {
+  font-size: 20px;
+  font-family: var(--heading);
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-h);
+}
+
 .create-bucket {
-  max-width: 640px;
+  width: 100%;
+  max-width: 900px;
   margin: 0 auto;
   padding: 48px 24px;
   text-align: left;
@@ -119,4 +140,259 @@
 .create-bucket .bucket-list-item:hover {
   border-color: var(--accent-border);
   background: var(--panel-bg-raised);
+}
+
+/* Chum Bucket theme — see 260-45. Matches cb_inspo.png's layout: a wide
+   page, a brand lockup, and card-wrapped action/list sections. */
+:root[data-theme='chum-bucket'] .create-bucket {
+  max-width: 900px;
+  padding: 48px 32px 64px;
+
+  @media (max-width: 640px) {
+    padding: 84px 20px 48px;
+  }
+}
+
+:root[data-theme='chum-bucket'] .create-bucket > .brand-mark {
+  margin-bottom: 40px;
+}
+
+:root[data-theme='chum-bucket'] .create-bucket h2 {
+  font-size: 34px;
+  margin: 0 0 4px;
+}
+
+:root[data-theme='chum-bucket'] .create-bucket .subtitle {
+  font-size: 16px;
+  margin: 0 0 24px;
+}
+
+.create-bucket-card {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px 18px;
+  padding: 20px 24px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 640px) {
+  .create-bucket-card {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .create-bucket-card-icon {
+    margin: 0 auto;
+  }
+
+  :root[data-theme='chum-bucket'] .create-bucket .create-bucket-card .primary-button {
+    justify-content: center;
+  }
+}
+
+.create-bucket-card-icon {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.create-bucket-card-icon img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.create-bucket-card-copy {
+  flex-grow: 1;
+}
+
+.create-bucket-card-copy h3 {
+  font-family: var(--heading);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-h);
+  margin: 0 0 4px;
+}
+
+.create-bucket-card-copy p {
+  font-size: 14px;
+  color: var(--text);
+}
+
+:root[data-theme='chum-bucket'] .create-bucket .primary-button {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 12px 22px;
+  border-radius: 12px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+}
+
+:root[data-theme='chum-bucket'] .create-bucket .primary-button:hover {
+  background: #5c3fd0;
+  border-color: transparent;
+}
+
+:root[data-theme='chum-bucket'] .create-bucket .section-label {
+  font-size: 13px;
+  margin: 40px 0 12px;
+}
+
+.bucket-list-card {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.bucket-list-card .bucket-list {
+  gap: 0;
+}
+
+.bucket-list-card .bucket-list-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  font-family: var(--sans);
+}
+
+.bucket-list-card li:last-child .bucket-list-item {
+  border-bottom: none;
+}
+
+.bucket-list-card .bucket-list-item:hover {
+  background: var(--accent-bg);
+}
+
+.bucket-avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.bucket-avatar img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.bucket-id {
+  font-family: var(--heading);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.bucket-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.bucket-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.bucket-status-live {
+  color: var(--success);
+}
+
+.bucket-status-error {
+  color: var(--method-delete);
+}
+
+.bucket-status-pending {
+  color: var(--text);
+  opacity: 0.7;
+}
+
+.bucket-stat {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.bucket-chevron {
+  display: flex;
+  margin-left: auto;
+  color: var(--text);
+  opacity: 0.6;
+}
+
+.bucket-list-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px 20px;
+  background: var(--accent-bg);
+  border-top: 1px solid var(--border);
+}
+
+.bucket-list-tip-icon {
+  flex-shrink: 0;
+  font-size: 18px;
+}
+
+:root:not([data-theme='chum-bucket']) .bucket-list-tip-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.bucket-list-tip p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-h);
+}
+
+.bucket-list-tip strong {
+  color: var(--accent);
+}
+
+@media (min-width: 640px) {
+  .bucket-stat {
+    display: inline-flex;
+  }
 }
