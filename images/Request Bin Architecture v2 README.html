@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Zilla+Slab:wght@500;600;700&amp;display=swap">
+<style>
+  body { margin: 0; background: #F6F4EF; }
+  a { color: #B85E09; }
+  a:hover { color: #8F4906; }
+</style>
+</helmet>
+
+<div ref="{{ rootRef }}" style="--bg: #F6F4EF; --surface: #FFFFFF; --surface-2: #FBFAF6; --ink: #1D1F23; --ink-dim: #61666F; --border: #DAD7CD; --border-strong: #9A9C93; --pg: #2F6690; --mongo: #3F8F5F; --accent: #B85E09; --lane-read: rgba(150,140,105,0.11); --lane-push: rgba(184,94,9,0.10); --lane-capture: rgba(63,143,95,0.09); --font-display: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif; --font-body: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif; --font-mono: 'IBM Plex Mono', ui-monospace, monospace; --radius: 10px; --radius-sm: 5px; --node-fill: #FFFFFF; --panel-tex: none; --panel-shadow: none; --well-shadow: none; --node-filter: none; --ink-shadow: none; --stroke-w: 1.5; --pad-y: 80px; --gap-lg: 60px; --frame-pad: 28px; background: var(--bg); min-height: 100vh; width: 100%; max-width: 100%; font-family: var(--font-body); color: var(--ink);">
+
+  <button type="button" onClick="{{ toggleTheme }}" style="position:fixed; top:24px; right:24px; z-index:10; display:flex; align-items:center; gap:9px; font-family:var(--font-mono); font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-dim); background-color:var(--surface); background-image:var(--panel-tex); background-repeat:no-repeat; box-shadow:var(--panel-shadow); border:1px solid var(--border); border-radius:999px; padding:9px 16px; cursor:pointer;" style-hover="border-color:var(--border-strong); color:var(--ink);">
+    <span style="width:9px; height:9px; border-radius:50%; background:var(--accent); flex:none;"></span>{{ themeLabel }}
+  </button>
+
+  
+<div style="max-width:1180px; margin:0 auto; padding:var(--pad-y) 40px 112px;">
+
+    <p style="font-family:var(--font-mono); font-size:11.5px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:var(--accent); text-shadow:var(--ink-shadow); margin:0 0 16px;">CAPSTONE 2608 -- TEAM 4</p>
+    <h1 style="font-family:var(--font-display); font-size:46px; font-weight:700; letter-spacing:-0.02em; line-height:1.1; text-shadow:var(--ink-shadow); margin:0 0 22px; text-wrap:balance;" data-om-label="Request Bucket">Request Bucket System Architecture</h1>
+    <p style="font-size: 18px; line-height: 1.7; color: var(--ink-dim); max-width: 62ch; margin: 0 0 var(--gap-lg); text-wrap: pretty; width: 678px; height: 157px">
+      Each visitor gets a <code style="font-family:var(--font-mono); font-size:0.87em; color:var(--ink); background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:0.12em 0.4em;">bucket</code> with a public URL and a private <code style="font-family:var(--font-mono); font-size:0.87em; color:var(--ink); background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:0.12em 0.4em;">owner_token</code>.
+      Anything sent to that URL is captured, stored twice — once as a full raw document, once as a
+      queryable summary — and pushed live to anyone watching over an open WebSocket.
+    </p>
+
+    <figure style="margin:0; padding:0;">
+      <div style="background-color:var(--surface); background-image:var(--panel-tex); background-repeat:no-repeat; box-shadow:var(--panel-shadow); border:1px solid var(--border); border-radius:var(--radius); padding:var(--frame-pad) 24px 20px; max-width:100%; overflow-x:auto;">
+        <div style="display: flex; flex-wrap: wrap; gap: 26px; margin: 30px 0 var(--gap-lg); padding: 18px 22px; background: var(--surface-2); box-shadow: var(--well-shadow); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 18px; color: var(--ink-dim); justify-content: center">
+      
+      <div style="display: flex; align-items: center; gap: 10px; justify-content: center"><span style="width:28px; height:0; border-top:2px solid var(--border-strong); flex:none;"></span> request / response or direct call</div><div style="display: flex; align-items: center; gap: 10px; justify-content: center"><span style="width:28px; height:0; border-top:2px dashed var(--accent); flex:none;"></span> async push over the open WebSocket</div>
+      <div style="display: flex; align-items: center; gap: 10px; justify-content: center"><span style="width:12px; height:12px; border-radius:2px; border:2px solid var(--pg); flex:none;"></span> PostgreSQL write</div><div style="display: flex; align-items: center; gap: 10px; justify-content: center"><span style="width:12px; height:12px; border-radius:2px; border:2px solid var(--mongo); flex:none;"></span> MongoDB write</div>
+      
+    </div><svg viewBox="0 0 1240 880" role="img" aria-label="Three tinted lanes. Read path: a browser SPA calls routes/bins.py, which inserts and queries PostgreSQL. Live push: the SPA opens a WebSocket to routes/websocket.py, which registers it with connection_manager.py, and each capture is pushed back to the SPA. Capture path: an external HTTP client hits routes/catch_all.py, which writes the raw request to MongoDB, a summary row to PostgreSQL, and broadcasts through the connection manager." style="display:block; width:100%; height:auto; min-width:940px; font-family:var(--font-mono);">
+          <defs>
+            <marker id="rb2-ink" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" style="fill:var(--ink-dim)"></path>
+            </marker>
+            <marker id="rb2-pg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" style="fill:var(--pg)"></path>
+            </marker>
+            <marker id="rb2-mongo" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" style="fill:var(--mongo)"></path>
+            </marker>
+            <marker id="rb2-accent" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" style="fill:var(--accent)"></path>
+            </marker>
+          </defs>
+
+          <rect x="8" y="40" width="1224" height="220" rx="8" style="fill:var(--lane-read)"></rect>
+          <text x="34" y="66" style="font-size:11px; font-weight:600; letter-spacing:0.14em; fill:var(--ink-dim);">READ PATH</text>
+
+          <rect x="8" y="276" width="1224" height="300" rx="8" style="fill:var(--lane-push)"></rect>
+          <text x="48" y="302" style="font-size:11px; font-weight:600; letter-spacing:0.14em; fill:var(--accent);">LIVE PUSH</text>
+
+          <rect x="8" y="592" width="1224" height="256" rx="8" style="fill:var(--lane-capture)"></rect>
+          <text x="34" y="618" style="font-size:11px; font-weight:600; letter-spacing:0.14em; fill:var(--ink-dim);">CAPTURE PATH</text>
+
+          <rect x="400" y="52" width="360" height="780" rx="8" fill="none" style="stroke:var(--border-strong)" stroke-width="1.25" stroke-dasharray="5 5"></rect>
+          <text x="412" y="72" style="font-size:12px; font-weight:600; letter-spacing:0.04em; fill:var(--ink-dim);">FASTAPI PROCESS — main.py</text>
+
+          <rect x="40" y="88" width="210" height="140" style="rx:var(--radius-sm); fill:var(--node-fill); stroke:var(--border-strong); filter:var(--node-filter); stroke-width:var(--stroke-w)"></rect>
+          <text x="145" y="120" text-anchor="middle" style="font-size:16px; font-weight:600; fill:var(--ink);">Browser</text>
+          <text x="145" y="147" text-anchor="middle" style="font-size:12.5px; fill:var(--ink-dim);">React + Vite</text>
+          
+          <text x="145" y="195" text-anchor="middle" style="font-size:11px; fill:var(--ink-dim);">owner_token cached in</text>
+          <text x="145" y="211" text-anchor="middle" style="font-size:11px; fill:var(--ink-dim);">localStorage (binStorage.ts)</text>
+
+          <rect x="425" y="88" width="310" height="140" style="rx:var(--radius-sm); fill:var(--node-fill); stroke:var(--border-strong); filter:var(--node-filter); stroke-width:var(--stroke-w)"></rect>
+          <text x="580" y="118" text-anchor="middle" style="font-size:16px; font-weight:600; fill:var(--ink);">routes/bins.py</text>
+          <text x="580" y="147" text-anchor="middle" style="font-size:12.5px; fill:var(--ink-dim);">POST /buckets</text>
+          <text x="580" y="166" text-anchor="middle" style="font-size:12.5px; fill:var(--ink-dim);">GET /buckets/{public_id}</text>
+          <text x="580" y="185" text-anchor="middle" style="font-size:12.5px; fill:var(--ink-dim);">GET .../requests/{id}</text>
+          <text x="580" y="213" text-anchor="middle" style="font-size:11px; fill:var(--ink-dim);">requires Owner-Token header</text>
+
+          <rect x="930" y="88" width="280" height="140" style="rx:var(--radius-sm); fill:var(--node-fill); stroke:var(--pg); filter:var(--node-filter); stroke-width:var(--stroke-w)"></rect>
+          <rect x="930" y="88" width="280" height="5" style="fill:var(--pg)"></rect>
+          <text x="1070" y="128" text-anchor="middle" style="font-size:16px; font-weight:600; fill:var(--ink);">PostgreSQL</text>
+          <text x="1070" y="156" text-anchor="middle" style="font-size:12.5px; fill:var(--ink-dim);">buckets</text>
+          <text x="1070" y="175" text-anchor="middle" style="font-size:12.5px; fill:var(--ink-dim);">bucket_requests</text>
+          
+
+          <rect x="425" y="300" width="310" height="110" style="rx:var(--radius-sm); fill:var(--node-fill); stroke:var(--border-strong); filter:var(--node-filter); stroke-width:var(--stroke-w)"></rect>
+          <text x="580" y="334" text-anchor="middle" style="font-size:16px; font-weight:600; fill:var(--ink);">routes/websocket.py</text>
+          <text x="580" y="362" text-anchor="middle" style="font-size:12.5px; fill:var(--ink-dim);">WS /ws/{bucket_id}</text>
+          <text x="580" y="391" text-anchor="middle" style="font-size:11px; fill:var(--ink-dim);">validates bucket, then hands off</text>
+
+          <rect x="450" y="446" width="260" height="120" style="rx:var(--radius-sm); fill:var(--node-fill); stroke:var(--border-strong); filter:var(--node-filter); stroke-width:var(--stroke-w)"></rect>
+          <text x="580" y="478" text-anchor="middle" style="font-size:15px; font-weight:600; fill:var(--ink);">connection_manager.py</text>
+          <text x="580" y="504" text-anchor="middle" style="font-size:12px; fill:var(--ink-dim);">ConnectionManager</text>
+          <text x="580" y="523" text-anchor="middle" style="font-size:12px; fill:var(--ink-dim);">bucket_id → {sockets}</text>
+          <text x="580" y="549" text-anchor="middle" style="font-size:11px; fill:var(--ink-dim);">in-memory · per process</text>
+
+          <rect x="40" y="636" width="210" height="140" style="rx:var(--radius-sm); fill:var(--node-fill); stroke:var(--border-strong); filter:var(--node-filter); stroke-width:var(--stroke-w)"></rect>
+          <text x="145" y="684" text-anchor="middle" style="font-size:14.5px; font-weight:600; fill:var(--ink);">External HTTP Client</text>
+          <text x="145" y="710" text-anchor="middle" style="font-size:12.5px; fill:var(--ink-dim);">curl · webhook sender</text>
+          <text x="145" y="729" text-anchor="middle" style="font-size:12.5px; fill:var(--ink-dim);">any origin, any method</text>
+
+          <rect x="425" y="636" width="310" height="150" style="rx:var(--radius-sm); fill:var(--node-fill); stroke:var(--border-strong); filter:var(--node-filter); stroke-width:var(--stroke-w)"></rect>
+          <text x="580" y="668" text-anchor="middle" style="font-size:16px; font-weight:600; fill:var(--ink);">routes/catch_all.py</text>
+          <text x="580" y="697" text-anchor="middle" style="font-size:12.5px; fill:var(--ink-dim);">ANY /{public_id}/{path}</text>
+          <text x="580" y="729" text-anchor="middle" style="font-size:11px; fill:var(--ink-dim);">registered last — bins.py's exact</text>
+          <text x="580" y="745" text-anchor="middle" style="font-size:11px; fill:var(--ink-dim);">routes must be matched first</text>
+          <text x="580" y="761" text-anchor="middle" style="font-size:11px; fill:var(--ink-dim);">or this catch-all interrupts them</text>
+
+          <rect x="930" y="636" width="280" height="140" style="rx:var(--radius-sm); fill:var(--node-fill); stroke:var(--mongo); filter:var(--node-filter); stroke-width:var(--stroke-w)"></rect>
+          <rect x="930" y="636" width="280" height="5" style="fill:var(--mongo)"></rect>
+          <text x="1070" y="682" text-anchor="middle" style="font-size:16px; font-weight:600; fill:var(--ink);">MongoDB</text>
+          <text x="1070" y="710" text-anchor="middle" style="font-size:12.5px; fill:var(--ink-dim);">captured_requests</text>
+          <text x="1070" y="740" text-anchor="middle" style="font-size:11px; fill:var(--ink-dim);">pymongo · full raw doc: headers,</text>
+          <text x="1070" y="756" text-anchor="middle" style="font-size:11px; fill:var(--ink-dim);">query params, base64 body</text>
+
+          <path d="M250,150 L425,150" fill="none" style="stroke:var(--ink-dim); stroke-width:var(--stroke-w)" marker-end="url(#rb2-ink)"></path>
+          <text x="337" y="140" text-anchor="middle" style="font-size:11px; fill:var(--ink-dim);">POST /buckets</text>
+
+          <path d="M735,150 L930,150" fill="none" style="stroke:var(--pg); stroke-width:var(--stroke-w)" marker-end="url(#rb2-pg)"></path>
+          <text x="832" y="140" text-anchor="middle" style="font-size:11px; fill:var(--pg);">insert / query</text>
+
+          <path d="M145,228 L145,355 L425,355" fill="none" style="stroke:var(--ink-dim); stroke-width:var(--stroke-w)" stroke-linejoin="round" marker-end="url(#rb2-ink)"></path>
+          <text x="158" y="345" style="font-size:11px; fill:var(--ink-dim);">WS /ws/{bucket_id}</text>
+
+          <path d="M580,410 L580,446" fill="none" style="stroke:var(--ink-dim); stroke-width:var(--stroke-w)" marker-end="url(#rb2-ink)"></path>
+          <text x="592" y="433" style="font-size:11px; fill:var(--ink-dim);">register(id, ws)</text>
+
+          <path d="M450,506 L20,506 L20,178 L40,178" fill="none" style="stroke:var(--accent)" stroke-width="2.25" stroke-dasharray="7 5" stroke-linejoin="round" marker-end="url(#rb2-accent)"></path>
+          <text x="240" y="496" text-anchor="middle" style="font-size:11.5px; font-weight:600; fill:var(--accent);">push live JSON (WS)</text>
+
+          <path d="M580,636 L580,566" fill="none" style="stroke:var(--ink-dim); stroke-width:var(--stroke-w)" marker-end="url(#rb2-ink)"></path>
+          <text x="592" y="604" style="font-size:11px; fill:var(--ink-dim);">broadcast(id, msg)</text>
+
+          <path d="M250,700 L425,700" fill="none" style="stroke:var(--ink-dim); stroke-width:var(--stroke-w)" marker-end="url(#rb2-ink)"></path>
+          <text x="337" y="690" text-anchor="middle" style="font-size:11px; fill:var(--ink-dim);">ANY /{id}/{path}</text>
+
+          <path d="M735,660 L930,660" fill="none" style="stroke:var(--mongo); stroke-width:var(--stroke-w)" marker-end="url(#rb2-mongo)"></path>
+          <text x="832" y="650" text-anchor="middle" style="font-size:11px; fill:var(--mongo);">insert (raw)</text>
+
+          <path d="M735,750 L870,750 L870,200 L930,200" fill="none" style="stroke:var(--pg); stroke-width:var(--stroke-w)" stroke-linejoin="round" marker-end="url(#rb2-pg)"></path>
+          <text x="800" y="740" text-anchor="middle" style="font-size:11px; fill:var(--pg);">insert (summary)</text>
+        </svg>
+      </div>
+      <figcaption style="font-size: 15.5px; line-height: 1.7; color: var(--ink-dim); margin-top: 18px; max-width: 70.79ch; text-wrap: pretty; width: 100%">
+        Two entry points into the same FastAPI process. The Browser owns the read path and the socket; any
+        outside caller lands in <code style="font-family: var(--font-mono); font-size: 0.87em; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.12em 0.4em;">catch_all.py</code>, whose wildcard is registered last in
+        <code style="font-family: var(--font-mono); font-size: 0.87em; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.12em 0.4em;">main.py</code> so it can't shadow the bucket routes. Every capture is written to both
+        databases, then fanned out live through the connection manager.
+      </figcaption>
+    </figure>
+
+    
+
+    <h2 style="font-family:var(--font-display); font-size:24px; font-weight:700; letter-spacing:-0.01em; text-shadow:var(--ink-shadow); margin:0 0 24px;"><br></h2><h2 style="font-size: 24px; letter-spacing: -0.01em; text-shadow: none; margin: 0px 0px 24px;">How a request becomes a live update</h2>
+    <div style="display:flex; flex-direction:column; gap:22px; margin:0 0 var(--gap-lg);">
+      <div style="display:grid; grid-template-columns:32px 1fr; gap:18px; align-items:start;">
+        <span style="font-family:var(--font-mono); font-weight:600; font-size:13px; width:30px; height:30px; border:1.5px solid var(--border-strong); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--ink-dim);">1</span>
+        <p style="margin: 0; font-size: 16px; line-height: 1.75; max-width: 70ch; text-wrap: pretty; width: 690px; height: 85px"><strong style="font-weight: 600;">Create.</strong> The browser&nbsp;<code style="font-family: var(--font-mono); font-size: 0.87em; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.12em 0.4em;">POST</code>s <code style="font-family: var(--font-mono); font-size: 0.87em; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.12em 0.4em;">/buckets</code>. <code style="font-family: var(--font-mono); font-size: 0.87em; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.12em 0.4em;">bins.py</code> inserts a <code style="font-family: var(--font-mono); font-size: 0.87em; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.12em 0.4em;">Bucket</code> row in Postgres and returns its <code style="font-family: var(--font-mono); font-size: 0.87em; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.12em 0.4em;">public_id</code> and <code style="font-family: var(--font-mono); font-size: 0.87em; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.12em 0.4em;">owner_token</code>; the browser saves the token to <code style="font-family: var(--font-mono); font-size: 0.87em; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.12em 0.4em;">localStorage</code> and routes to <code style="font-family: var(--font-mono); font-size: 0.87em; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.12em 0.4em;">/bin/:publicId</code>.</p>
+      </div>
+      <div style="display:grid; grid-template-columns:32px 1fr; gap:18px; align-items:start;">
+        <span style="font-family:var(--font-mono); font-weight:600; font-size:13px; width:30px; height:30px; border:1.5px solid var(--border-strong); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--ink-dim);">2</span>
+        <p style="margin:0; font-size:16px; line-height:1.75; max-width:70ch; text-wrap:pretty;"><strong style="font-weight: 600;">Inspect.</strong> On that page the browser calls <code style="font-family: var(--font-mono); font-size: 0.87em; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.12em 0.4em;">GET /buckets/{id}</code> (with the <code style="font-family: var(--font-mono); font-size: 0.87em; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.12em 0.4em;">Owner-Token</code> header) for history, and opens <code style="font-family: var(--font-mono); font-size: 0.87em; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.12em 0.4em;">WS /ws/{bucket_id}</code>; <code style="font-family: var(--font-mono); font-size: 0.87em; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.12em 0.4em;">websocket.py</code> checks the bucket exists, then hands the socket to <code style="font-family: var(--font-mono); font-size: 0.87em; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.12em 0.4em;">connection_manager</code>.</p>
+      </div>
+      <div style="display:grid; grid-template-columns:32px 1fr; gap:18px; align-items:start;">
+        <span style="font-family:var(--font-mono); font-weight:600; font-size:13px; width:30px; height:30px; border:1.5px solid var(--border-strong); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--ink-dim);">3</span>
+        <p style="margin:0; font-size:16px; line-height:1.75; max-width:70ch; text-wrap:pretty;"><strong style="font-weight:600;">Capture and broadcast.</strong> Any method sent to <code style="font-family:var(--font-mono); font-size:0.87em; color:var(--ink); background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:0.12em 0.4em;">/{public_id}/{path}</code> lands in <code style="font-family:var(--font-mono); font-size:0.87em; color:var(--ink); background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:0.12em 0.4em;">catch_all.py</code>, which writes the full raw request to MongoDB, a summarized row to Postgres, then calls <code style="font-family:var(--font-mono); font-size:0.87em; color:var(--ink); background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:0.12em 0.4em;">connection_manager.broadcast()</code> — pushing the new request to every open socket for that bucket, live.</p>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden;">
+      <div style="background-color:var(--surface); background-image:var(--panel-tex); background-repeat:no-repeat; padding:20px 24px;">
+        <h3 style="font-family:var(--font-mono); font-size:10.5px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-dim); margin:0 0 12px;">Frontend</h3>
+        <p style="margin:0; font-size:14px; line-height:1.8;">React · Vite · TypeScript<br>react-router-dom</p>
+      </div>
+      <div style="background-color:var(--surface); background-image:var(--panel-tex); background-repeat:no-repeat; padding:20px 24px;">
+        <h3 style="font-family:var(--font-mono); font-size:10.5px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-dim); margin:0 0 12px;">Backend</h3>
+        <p style="margin:0; font-size:14px; line-height:1.8;">FastAPI · SQLAlchemy<br>Alembic · pymongo</p>
+      </div>
+      <div style="background-color:var(--surface); background-image:var(--panel-tex); background-repeat:no-repeat; padding:20px 24px;">
+        <h3 style="font-family:var(--font-mono); font-size:10.5px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-dim); margin:0 0 12px;">Data</h3>
+        <p style="margin:0; font-size:14px; line-height:1.8;">PostgreSQL — buckets, bucket_requests<br>MongoDB — captured_requests</p>
+      </div>
+    </div>
+
+    <div style="height:1px; background:var(--border); margin:var(--gap-lg) 0 44px;"></div>
+
+    <p style="font-family:var(--font-mono); font-size:11.5px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:var(--accent); text-shadow:var(--ink-shadow); margin:0 0 14px;">Process notes</p>
+    <h2 style="font-family:var(--font-display); font-size:32px; font-weight:700; letter-spacing:-0.02em; line-height:1.15; text-shadow:var(--ink-shadow); margin:0 0 48px;">How it was built</h2>
+
+    <section style="display:grid; grid-template-columns:190px 1fr; gap:36px; margin:0 0 48px; align-items:start;">
+      <h3 style="font-family:var(--font-mono); font-size:11.5px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-dim); margin:6px 0 0;">Deployment</h3>
+      <p style="font-size:20px; font-weight:600; line-height:1.45; margin:0;">No. It ran locally only.</p>
+    </section>
+
+    <section style="display:grid; grid-template-columns:190px 1fr; gap:36px; margin:0 0 48px; align-items:start;">
+      <h3 style="font-family:var(--font-mono); font-size:11.5px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-dim); margin:6px 0 0;">Collaboration</h3>
+      <div style="display:flex; flex-direction:column; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden;">
+        <div style="background-color:var(--surface); background-image:var(--panel-tex); background-repeat:no-repeat; padding:20px 22px;">
+          <p style="font-family:var(--font-mono); font-size:10.5px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-dim); margin:0 0 8px;">Communication</p>
+          <p style="margin:0; font-size:16px; line-height:1.6;">Discord chat/video calls</p>
+        </div>
+        <div style="background-color:var(--surface); background-image:var(--panel-tex); background-repeat:no-repeat; padding:20px 22px;">
+          <p style="font-family:var(--font-mono); font-size:10.5px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-dim); margin:0 0 8px;">Tracking</p>
+          <p style="margin:0; font-size:16px; line-height:1.6;">Linear for issues (linked to discord and project repo)</p>
+        </div>
+        <div style="background-color:var(--surface); background-image:var(--panel-tex); background-repeat:no-repeat; padding:20px 22px;">
+          <p style="font-family:var(--font-mono); font-size:10.5px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-dim); margin:0 0 8px;">Review</p>
+          <p style="margin:0; font-size:16px; line-height:1.6;">Github for reviewing pull requests</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="display:grid; grid-template-columns:190px 1fr; gap:36px; margin:0 0 48px; align-items:start;">
+      <h3 style="font-family:var(--font-mono); font-size:11.5px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-dim); margin:6px 0 0;">Working with AI</h3>
+      <div style="display:flex; flex-direction:column; gap:26px;">
+        <p style="font-size:17px; line-height:1.75; margin:0; max-width:62ch;">After creating the project skeleton, we outlined key features and functions. Collaborated with claude code (linked to linear via MCP server) to create linear issues</p>
+        <div style="border-left:3px solid var(--accent); padding:2px 0 2px 20px;">
+          <p style="font-family:var(--font-mono); font-size:10.5px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); margin:0 0 10px;">Keeping the architecture ours</p>
+          <p style="font-size:16.5px; line-height:1.75; margin:0; max-width:62ch;">Every PR was reviewed as a team. Architecture was determined prior to coding. Claude Code was used first in "plan mode" and in "manual approval" mode.</p>
+        </div>
+        <div style="border-left:3px solid var(--border-strong); padding:2px 0 2px 20px;">
+          <p style="font-family:var(--font-mono); font-size:10.5px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-dim); margin:0 0 10px;">Where it cost us</p>
+          <p style="font-size:16.5px; line-height:1.75; margin:0; max-width:62ch;">Some Linear issues had overlapping scope, which led to some PR reviews being more involved.</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="display:grid; grid-template-columns:190px 1fr; gap:36px; align-items:start;">
+      <h3 style="font-family:var(--font-mono); font-size:11.5px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-dim); margin:6px 0 0;">Takeaways</h3>
+      <div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; margin:0 0 32px;">
+          <p style="background-color:var(--surface); background-image:var(--panel-tex); background-repeat:no-repeat; margin:0; padding:22px; font-size:16.5px; line-height:1.6; font-weight:500;">Iterate and test in discrete chunks.</p>
+          <p style="background-color:var(--surface); background-image:var(--panel-tex); background-repeat:no-repeat; margin:0; padding:22px; font-size:16.5px; line-height:1.6; font-weight:500;">Function over form.</p>
+          <p style="background-color:var(--surface); background-image:var(--panel-tex); background-repeat:no-repeat; margin:0; padding:22px; font-size:16.5px; line-height:1.6; font-weight:500;">Establish baseline architecture before designing features.</p>
+          <p style="background-color:var(--surface); background-image:var(--panel-tex); background-repeat:no-repeat; margin:0; padding:22px; font-size:16.5px; line-height:1.6; font-weight:500;">Opt for simple and robust over clever and verbose.</p>
+        </div>
+        <blockquote style="margin:0; padding:0;">
+          <p style="font-family:var(--font-display); font-size:26px; line-height:1.45; font-weight:600; letter-spacing:-0.01em; text-shadow:var(--ink-shadow); margin:0 0 12px; text-wrap:pretty;">"A problem well stated is a problem half solved"</p>
+          <footer style="font-family:var(--font-mono); font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-dim);">Charles Kettering</footer>
+        </blockquote>
+      </div>
+    </section>
+
+  </div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;visualLanguage&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;blueprint&quot;,&quot;product&quot;,&quot;editorial&quot;,&quot;terminal&quot;,&quot;salvage&quot;,&quot;lab&quot;,&quot;contrast&quot;,&quot;meadow&quot;],&quot;default&quot;:&quot;product&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Feel&quot;,&quot;label&quot;:&quot;Visual language&quot;},&quot;laneIntensity&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:0,&quot;max&quot;:100,&quot;step&quot;:5,&quot;default&quot;:100,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Feel&quot;,&quot;label&quot;:&quot;Lane tint intensity&quot;},&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;airy&quot;,&quot;standard&quot;,&quot;tight&quot;],&quot;default&quot;:&quot;tight&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Feel&quot;,&quot;label&quot;:&quot;Density&quot;}}">
+const THEMES = {
+  light: {
+    "--bg": "#F6F4EF", "--surface": "#FFFFFF", "--surface-2": "#FBFAF6",
+    "--ink": "#1D1F23", "--ink-dim": "#61666F",
+    "--border": "#DAD7CD", "--border-strong": "#9A9C93",
+    "--pg": "#2F6690", "--mongo": "#3F8F5F", "--accent": "#B85E09",
+    "--node-fill": "#FFFFFF",
+  },
+  dark: {
+    "--bg": "#15171A", "--surface": "#1D2024", "--surface-2": "#191C20",
+    "--ink": "#E9E8E4", "--ink-dim": "#9AA0A6",
+    "--border": "#33363B", "--border-strong": "#565A61",
+    "--pg": "#6FA8D6", "--mongo": "#79C89A", "--accent": "#E2932E",
+    "--node-fill": "#1D2024",
+  },
+};
+
+const LANE_BASE = {
+  light: { read: [150, 140, 105, 0.11], push: [184, 94, 9, 0.10], capture: [63, 143, 95, 0.09] },
+  dark: { read: [255, 255, 255, 0.05], push: [226, 147, 46, 0.13], capture: [121, 200, 154, 0.10] },
+};
+
+const MONO = "'IBM Plex Mono', ui-monospace, monospace";
+const SANS = "'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif";
+const SERIF = "'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif";
+const SLAB = "'Zilla Slab', Rockwell, 'Roboto Slab', Georgia, serif";
+
+const FLAT = { "--panel-tex": "none", "--panel-shadow": "none", "--well-shadow": "none", "--node-filter": "none", "--ink-shadow": "none", "--stroke-w": "1.5" };
+
+const PLATE_TEX = "linear-gradient(180deg, rgba(255,255,255,0.13) 0, rgba(255,255,255,0.02) 18%, rgba(0,0,0,0.10) 64%, rgba(0,0,0,0.26) 100%)";
+
+const LANGUAGES = {
+  blueprint: { laneScale: 1, vars: Object.assign({ "--font-display": SANS, "--font-body": SANS, "--radius": "10px", "--radius-sm": "5px" }, FLAT) },
+  editorial: {
+    laneScale: 0.45,
+    vars: Object.assign({ "--font-display": SERIF, "--font-body": SERIF, "--radius": "3px", "--radius-sm": "2px" }, FLAT),
+    light: { "--bg": "#FCFBF7", "--border": "#E4E0D4", "--border-strong": "#A8A598" },
+    dark: { "--bg": "#111316", "--surface": "#1A1D21", "--node-fill": "#1A1D21" },
+  },
+  terminal: {
+    laneScale: 1.5,
+    vars: Object.assign({ "--font-display": MONO, "--font-body": MONO, "--radius": "2px", "--radius-sm": "2px" }, FLAT),
+    light: { "--bg": "#ECEBE4", "--ink": "#0E1013", "--border": "#C5C3B8", "--border-strong": "#7C7F76" },
+    dark: { "--bg": "#0D0F11", "--surface": "#15181B", "--surface-2": "#101315", "--node-fill": "#15181B", "--border-strong": "#6B7078" },
+  },
+  product: {
+    laneScale: 0.5,
+    lanes: { read: [129, 137, 236, 0.07], push: [129, 137, 236, 0.10], capture: [79, 191, 110, 0.07] },
+    vars: {
+      "--font-display": SANS, "--font-body": SANS,
+      "--radius": "14px", "--radius-sm": "12px", "--stroke-w": "1.5",
+      "--bg": "#101214", "--surface": "#141619", "--surface-2": "#1B1D20", "--node-fill": "#191C20",
+      "--ink": "#C4C6C9", "--ink-dim": "#8B9098",
+      "--border": "#212327", "--border-strong": "#3A3C46",
+      "--pg": "#D8B24A", "--mongo": "#4FBF6E", "--accent": "#8189EC",
+      "--panel-tex": "none", "--panel-shadow": "none", "--ink-shadow": "none",
+      "--well-shadow": "inset 0 0 0 1px rgba(255,255,255,0.03)",
+      "--node-filter": "none",
+    },
+    light: {},
+    dark: {},
+  },
+  lab: {
+    laneScale: 1.0,
+    lanes: { read: [161, 191, 196, 0.05], push: [165, 48, 28, 0.07], capture: [107, 92, 150, 0.07] },
+    vars: {
+      "--font-display": SLAB, "--font-body": SANS,
+      "--radius": "9px", "--radius-sm": "6px", "--stroke-w": "1.6",
+      "--surface": "#1F3B37", "--surface-2": "#112026", "--node-fill": "#2F4C46",
+      "--ink": "#F0E9DA", "--ink-dim": "#BEC9B9",
+      "--border": "#0C1A16", "--border-strong": "#7E8676",
+      "--pg": "#A1BFC4", "--mongo": "#A6CC72", "--accent": "#FFA070",
+      "--panel-tex": PLATE_TEX,
+      "--panel-shadow": "inset 0 1px 0 rgba(255,255,255,0.14), inset 0 -2px 0 rgba(0,0,0,0.5), 0 0 0 3px #0C1A16, 0 0 0 4px rgba(126,134,118,0.35), 0 6px 0 #081210, 0 22px 40px rgba(0,0,0,0.6)",
+      "--well-shadow": "inset 0 4px 10px rgba(0,0,0,0.7), inset 0 -1px 0 rgba(255,255,255,0.06)",
+      "--node-filter": "drop-shadow(0 3px 2px rgba(0,0,0,0.6))",
+      "--ink-shadow": "0 1px 0 rgba(0,0,0,0.65)",
+    },
+    light: { "--bg": "radial-gradient(120% 80% at 50% 0%, #1B4C55 0%, #0E3038 38%, #071E24 72%, #030F13 100%) fixed" },
+    dark: { "--bg": "radial-gradient(120% 80% at 50% 0%, #123840 0%, #0A2429 40%, #05161B 74%, #020A0D 100%) fixed" },
+  },
+  meadow: {
+    laneScale: 0.55,
+    lanes: { read: [122, 138, 96, 0.17], push: [168, 91, 30, 0.19], capture: [42, 100, 114, 0.16] },
+    vars: {
+      "--font-display": SERIF, "--font-body": SANS,
+      "--radius": "12px", "--radius-sm": "9px", "--stroke-w": "1.9",
+      "--panel-tex": "none", "--ink-shadow": "none",
+      "--panel-shadow": "0 1px 2px rgba(35,38,31,0.07), 0 10px 24px rgba(35,38,31,0.07)",
+      "--well-shadow": "inset 0 1px 2px rgba(35,38,31,0.09)",
+      "--node-filter": "drop-shadow(0 1px 1px rgba(35,38,31,0.12))",
+    },
+    light: {
+      "--bg": "#F1EDE3", "--surface": "#FBF8F1", "--surface-2": "#E8E2D4", "--node-fill": "#FDFBF6",
+      "--ink": "#23261F", "--ink-dim": "#4C5346",
+      "--border": "#CFC8B4", "--border-strong": "#7E856C",
+      "--pg": "#2A6472", "--mongo": "#4F7327", "--accent": "#8C4712",
+    },
+    dark: {
+      "--bg": "#1B211B", "--surface": "#26302A", "--surface-2": "#1F2822", "--node-fill": "#2B352E",
+      "--ink": "#EDEADF", "--ink-dim": "#BDC3B2",
+      "--border": "#3C463D", "--border-strong": "#7E856C",
+      "--pg": "#84BECB", "--mongo": "#A8C878", "--accent": "#E0A05C",
+    },
+  },
+  contrast: {
+    laneScale: 0.7,
+    lanes: { read: [0, 0, 0, 0.05], push: [163, 40, 0, 0.09], capture: [20, 102, 58, 0.08] },
+    vars: Object.assign({}, FLAT, {
+      "--font-display": SANS, "--font-body": SANS,
+      "--radius": "4px", "--radius-sm": "3px", "--stroke-w": "2.5",
+    }),
+    light: {
+      "--bg": "#FFFFFF", "--surface": "#FFFFFF", "--surface-2": "#F0F0EE", "--node-fill": "#FFFFFF",
+      "--ink": "#000000", "--ink-dim": "#2B2B2B",
+      "--border": "#000000", "--border-strong": "#000000",
+      "--pg": "#0B4F8A", "--mongo": "#14663A", "--accent": "#A32800",
+    },
+    dark: {
+      "--bg": "#000000", "--surface": "#0A0A0A", "--surface-2": "#161616", "--node-fill": "#0A0A0A",
+      "--ink": "#FFFFFF", "--ink-dim": "#EDEDED",
+      "--border": "#FFFFFF", "--border-strong": "#FFFFFF",
+      "--pg": "#8CCBFF", "--mongo": "#79E8A6", "--accent": "#FFB020",
+    },
+  },
+  salvage: {
+    laneScale: 1.1,
+    lanes: { read: [161, 191, 196, 0.055], push: [232, 180, 74, 0.06], capture: [137, 178, 85, 0.055] },
+    vars: {
+      "--font-display": SLAB, "--font-body": SANS,
+      "--radius": "10px", "--radius-sm": "7px", "--stroke-w": "1.5",
+      "--surface": "#29433E", "--surface-2": "#1C2C31", "--node-fill": "#415852",
+      "--ink": "#EAE3DC", "--ink-dim": "#A9B6A4",
+      "--border": "#16261F", "--border-strong": "#939889",
+      "--pg": "#A1BFC4", "--mongo": "#89B255", "--accent": "#E8B44A",
+      "--panel-tex": PLATE_TEX,
+      "--panel-shadow": "inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -2px 0 rgba(0,0,0,0.40), 0 0 0 3px #16261F, 0 0 0 4px rgba(147,152,137,0.30), 0 5px 0 #101d18, 0 18px 34px rgba(0,0,0,0.50)",
+      "--well-shadow": "inset 0 3px 8px rgba(0,0,0,0.55), inset 0 -1px 0 rgba(255,255,255,0.07)",
+      "--node-filter": "drop-shadow(0 2px 1px rgba(0,0,0,0.55))",
+      "--ink-shadow": "0 1px 0 rgba(0,0,0,0.55)",
+    },
+    light: { "--bg": "linear-gradient(180deg, #0E74B3 0%, #0A5A8A 26%, #073E5C 58%, #052833 84%, #041B23 100%) fixed" },
+    dark: { "--bg": "linear-gradient(180deg, #084C77 0%, #063A5A 24%, #05283A 56%, #041A24 84%, #020F15 100%) fixed" },
+  },
+};
+
+const DENSITY = {
+  airy: { "--pad-y": "112px", "--gap-lg": "80px", "--frame-pad": "36px" },
+  standard: { "--pad-y": "80px", "--gap-lg": "60px", "--frame-pad": "28px" },
+  tight: { "--pad-y": "48px", "--gap-lg": "36px", "--frame-pad": "18px" },
+};
+
+class Component extends DCLogic {
+  state = { theme: "light" };
+  rootRef = React.createRef();
+
+  componentDidMount() {
+    let stored = null;
+    try { stored = localStorage.getItem("rb-theme"); } catch (e) {}
+    if (stored === "dark" || stored === "light") this.setState({ theme: stored });
+    else this.apply();
+  }
+
+  componentDidUpdate() { this.apply(); }
+
+  apply() {
+    const el = this.rootRef.current;
+    if (!el) return;
+    const theme = this.state.theme === "dark" ? "dark" : "light";
+    const lang = LANGUAGES[this.props.visualLanguage] || LANGUAGES.blueprint;
+    const density = DENSITY[this.props.density] || DENSITY.standard;
+    const k = Math.max(0, (this.props.laneIntensity ?? 50) / 50) * lang.laneScale;
+    const base = lang.lanes || LANE_BASE[theme];
+    const lane = (c) => {
+      const a = Math.min(0.45, c[3] * k);
+      return a < 0.004 ? "transparent" : "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a.toFixed(3) + ")";
+    };
+    const vars = Object.assign(
+      {}, THEMES[theme], lang.vars, lang[theme] || {}, density,
+      { "--lane-read": lane(base.read), "--lane-push": lane(base.push), "--lane-capture": lane(base.capture) }
+    );
+    for (const key in vars) el.style.setProperty(key, vars[key]);
+    document.body.style.background = vars["--bg"];
+  }
+
+  renderVals() {
+    return {
+      rootRef: this.rootRef,
+      themeLabel: this.state.theme === "dark" ? "Dark" : "Light",
+      toggleTheme: () => {
+        const next = this.state.theme === "dark" ? "light" : "dark";
+        try { localStorage.setItem("rb-theme", next); } catch (e) {}
+        this.setState({ theme: next });
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>
