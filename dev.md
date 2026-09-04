@@ -2,7 +2,17 @@
 1. Set up GitHub SSH
 2. Run `git clone git@github.com:ztfes/request-bin.git` in your local
 
-# Our Local Installations Used:
+# Our Stack 
+- React
+- Vite
+- TypeScript
+- FastAPI (Application Framework)
+- SQLAlchemy (ORM)
+- Alembic (Migrations)
+- PostgreSQL
+- MongoDB
+
+# Our Local Installations:
 
 - Python   → 3.14.x
 - fastAPI   → 0.141.1
@@ -12,7 +22,7 @@
 - React   → 19.2.x
 - npm   → 11.19.x
 
-These worked for us, you may be able to get away with other versions, this is just what is working on our machines.
+*"Works on my machine"*
 
 # Git Workflows
 
