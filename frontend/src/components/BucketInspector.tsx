@@ -105,7 +105,11 @@ function BucketInspectorContent({ publicId, ownerToken, url }: BucketInspectorCo
   }, [publicId, ownerToken, attempt])
 
   const initialRequests = state.status === 'loaded' ? state.requests : EMPTY_REQUESTS
-  const { requests: liveRequests, status: wsStatus } = useBucketRequestFeed(publicId, initialRequests, {
+  const {
+    requests: liveRequests,
+    status: wsStatus,
+    expired,
+  } = useBucketRequestFeed(publicId, initialRequests, {
     onLiveRequest: () => setPinnedId(null),
   })
   const requests = useMemo(() => sortByReceivedAtDesc(liveRequests), [liveRequests])
@@ -122,12 +126,32 @@ function BucketInspectorContent({ publicId, ownerToken, url }: BucketInspectorCo
 
   return (
     <div className="bucket-inspector">
-      <Header url={url} status={wsStatus} />
+      <Header url={url} status={expired ? undefined : wsStatus} />
 
       <main className="bucket-inspector-body">
-        {state.status === 'loading' && <p className="status">Loading requests…</p>}
+        {/* Checked before the load states: once the bin is gone the REST
+            data behind them describes something that no longer exists. */}
+        {expired && (
+          <div className="empty-state">
+            <h2>
+              {theme === 'chum-bucket'
+                ? 'This bucket has been hosed out'
+                : 'This bin has expired'}
+            </h2>
+            <p>
+              {theme === 'chum-bucket'
+                ? 'It sat empty too long, so the chumm went overboard. Make a new one to keep fishing.'
+                : 'It went too long without a request, so it and its history were deleted. Create a new bin to keep going.'}
+            </p>
+            <Link to="/" className="empty-state-link">
+              {theme === 'chum-bucket' ? 'Grab a fresh bucket' : 'Create a new bin'}
+            </Link>
+          </div>
+        )}
 
-        {state.status === 'error' && (
+        {!expired && state.status === 'loading' && <p className="status">Loading requests…</p>}
+
+        {!expired && state.status === 'error' && (
           <div className="status error">
             <p>{state.message}</p>
             <button type="button" onClick={retry}>
@@ -136,7 +160,7 @@ function BucketInspectorContent({ publicId, ownerToken, url }: BucketInspectorCo
           </div>
         )}
 
-        {state.status === 'loaded' && requests.length === 0 && (
+        {!expired && state.status === 'loaded' && requests.length === 0 && (
           <div className="empty-state">
             <h2>{theme === 'chum-bucket' ? 'No chumm in the bucket yet' : 'No requests yet'}</h2>
             <p>
@@ -147,7 +171,7 @@ function BucketInspectorContent({ publicId, ownerToken, url }: BucketInspectorCo
           </div>
         )}
 
-        {state.status === 'loaded' && requests.length > 0 && (
+        {!expired && state.status === 'loaded' && requests.length > 0 && (
           <div className="panes">
             <div className="request-list-pane">
               {theme === 'chum-bucket' && (

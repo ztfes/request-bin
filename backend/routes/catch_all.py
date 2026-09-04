@@ -11,6 +11,7 @@ from models.bucket import Bucket
 from models.bucket_request import BucketRequest
 from models.database import get_db
 from models.request_document import RequestDocument
+from services.cleanup import trim_bucket_to_cap
 
 router = APIRouter()
 
@@ -71,5 +72,13 @@ async def capture(
             "mongo_id": bucket_request.mongo_id,
         },
     )
+
+    # After the broadcast: trimming commits, which expires the attributes
+    # read into the message above, and the live feed shouldn't wait on it.
+    trimmed_ids = trim_bucket_to_cap(db, bucket.bucket_id)
+    if trimmed_ids:
+        await manager.broadcast(
+            str(public_id), {"type": "requests_removed", "ids": trimmed_ids}
+        )
 
     return {"status": "captured", "bucket": str(public_id)}
