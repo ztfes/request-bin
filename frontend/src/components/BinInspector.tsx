@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import '../App.css'
 import { ApiError, binUrl, listBucketRequests } from '../lib/api'
 import { useBucketRequestFeed } from '../hooks/useBucketRequestFeed'
@@ -16,7 +17,9 @@ interface BinInspectorProps {
 function Header({ url, status }: { url: string; status?: ConnectionStatusValue }) {
   return (
     <header className="bin-inspector-header">
-      <h1>Bin Inspector</h1>
+      <Link to="/" className="bin-inspector-home-link">
+        <h1>Bin Inspector</h1>
+      </Link>
       <BinUrl url={url} />
       {status && <ConnectionStatus status={status} />}
     </header>
