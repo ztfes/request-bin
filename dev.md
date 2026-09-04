@@ -61,7 +61,7 @@ cp backend/.env.example backend/.env
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
-| `VITE_API_URL` | No | Base URL for the API and WebSocket. Defaults to `http://localhost:8000`. `src/lib/ws.ts` derives the socket URL from it by swapping `http` → `ws`, and ignores the value if it has no scheme. |
+| `VITE_API_URL` | No | Base URL for the API and WebSocket. Defaults to `http://localhost:8000`. `src/lib/ws.ts` derives the socket URL from it by swapping `http` → `ws`, and ignores the value if it has no scheme. Note that `src/CreateBucket.tsx` hardcodes `http://localhost:8000`, so this changes where the inspector reads from but not where buckets are created. |
 
 ## Backend
 
@@ -136,10 +136,9 @@ a different database.
 ## Manual Verification With ngrok
 
 Local `curl` proves the capture path, but not that the app handles a request
-from a real external sender. Per [260-8](https://linear.app/2608-team4/issue/260-8/alyssazach-request-capture-live-updates-alyssa-and-zach),
-verify that once with ngrok — also the easiest way to demo the app.
+from a real external sender. verify that once with ngrok — also the easiest way to demo the app.
 
-1. **Expose the backend** (port 8000, not the frontend's 5173):
+1. **Expose the backend** (port `8000`, not the frontend's `5173`):
 
    ```bash
    ngrok http 8000
@@ -225,9 +224,34 @@ Resolve any conflicts, then `git push --force-with-lease`. Use
 `--force-with-lease`, never bare `--force` — it refuses to overwrite commits
 someone else pushed to your branch.
 
+## Git Branch Naming Convention
+Git branch names should follow these naming conventions:
+
+- Use lowercase alphanumeric characters
+- Use kebab-case format
+- Use one of the following name prefixes:
+  - `feature/`
+  - `bugfix/`
+  - `refactor/`
+  - `test/`
+  - `chore/`
+  - `documentation/`
+- Name should be prefixed with the Linear issue number
+
+Names should ideally be descriptive but concise
+Examples of branch names include:
+
+- `feature/260-19-pagination`
+- `bugfix/261-29-remove-async-await`
+- `refactor/281-10-simplify-models`
+
+## Merging PRs
+
+In the body, enter a concise description of what is contained in the PR.
+
 ---
 
-## Resetting Local Databases After a Migration Lands on `main` (ONLY DO THIS IN LOCAL DEVELOPEMENT WITH TEST DATABASES / DATA)
+## Resetting Local Databases After a Migration Lands on `main` (ONLY DO THIS IN LOCAL DEVELOPMENT WITH TEST DATABASES / DATA)
 
 We run two datastores locally:
 
@@ -265,33 +289,17 @@ Use this first. It's non-destructive and is the right answer 90% of the time.
 2. **Refresh dependencies.**
 
    ```bash
-   cd backend && pip install -r requirements.txt
-   
+   cd backend && source venv/bin/activate && pip install -r requirements.txt
+   ```
 
-## Git Branch Naming Convention
-Git branch names should follow these naming conventions:
+3. **Apply everything up to the latest revision.**
 
-- Use lowercase alphanumeric characters
-- Use kebab-case format
-- Use one of the following name prefixes:
-  - `feature/`
-  - `bugfix/`
-  - `refactor/`
-  - `test/`
-  - `chore/`
-  - `documentation/`
-- Name should be prefixed with the Linear issue number
+   ```bash
+   alembic upgrade head
+   ```
 
-Names should ideally be descriptive but concise
-Examples of branch names include:
-
-- `feature/260-19-pagination`
-- `bugfix/261-29-remove-async-await`
-- `refactor/281-10-simplify-models`
-
-## Merging PRs
-
-In the body, enter a concise description of what is contained in the PR.
+   Confirm with `alembic current` — it should report the newest revision in
+   `backend/alembic/versions/`.
 
 # Architecture
 
@@ -339,7 +347,7 @@ columns. But the *questions* the app asks are relational: which bucket, in what
 order, how many.
 
 **Trade-off:** Two datastores to install, run, migrate, and reset — which is why
-[dev.md](dev.md) has a whole database-reset procedure (this is for the local development environments with dummy/test data - this should **never** be used in production). 
+this doc has a whole database-reset procedure above (this is for the local development environments with dummy/test data - this should **never** be used in production). 
 
 Worse, the two writes aren't a single transaction: if the Postgres insert fails after the Mongo insert
 succeeds, an orphaned document is left behind. We accepted that because an orphan in a local debugging tool costs nothing, a distributed transaction would have cost.
