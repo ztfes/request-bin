@@ -1,9 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { BucketRequestSocket, type BucketRequestMessage, type ConnectionStatus } from '../lib/ws'
 
 export interface UseBucketRequestFeedResult {
   requests: BucketRequestMessage[]
   status: ConnectionStatus
+}
+
+export interface UseBucketRequestFeedOptions {
+  // Fires for each request received live over the socket (not for
+  // `initialRequests` or replayed history on reconnect).
+  onLiveRequest?: (message: BucketRequestMessage) => void
 }
 
 // Shared reference so omitting `initialRequests` doesn't hand back a fresh
@@ -28,10 +34,16 @@ const EMPTY_REQUESTS: BucketRequestMessage[] = []
 export function useBucketRequestFeed(
   bucketId: string | null,
   initialRequests: BucketRequestMessage[] = EMPTY_REQUESTS,
+  { onLiveRequest }: UseBucketRequestFeedOptions = {},
 ): UseBucketRequestFeedResult {
   const [trackedBucketId, setTrackedBucketId] = useState(bucketId)
   const [liveMessages, setLiveMessages] = useState<BucketRequestMessage[]>([])
   const [status, setStatus] = useState<ConnectionStatus>('connecting')
+
+  // Ref so the effect below doesn't need to resubscribe when the caller
+  // passes a new callback identity.
+  const onLiveRequestRef = useRef(onLiveRequest)
+  onLiveRequestRef.current = onLiveRequest
 
   // Reset feed state during render when bucketId changes, rather than in an
   // effect, per https://react.dev/learn/you-might-not-need-an-effect
@@ -54,6 +66,7 @@ export function useBucketRequestFeed(
         if (seenLiveIds.has(message.id)) return
         seenLiveIds.add(message.id)
         setLiveMessages((current) => [message, ...current])
+        onLiveRequestRef.current?.(message)
       },
     })
 

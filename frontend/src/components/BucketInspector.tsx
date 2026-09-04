@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import '../App.css'
 import { ApiError, bucketUrl, listBucketRequests } from '../lib/api'
 import { useBucketRequestFeed } from '../hooks/useBucketRequestFeed'
@@ -21,7 +22,9 @@ function Header({ url, status }: { url: string; status?: ConnectionStatusValue }
 
   return (
     <header className="bucket-inspector-header">
-      {isChumBucket ? <BrandMark /> : <h1>Bucket Inspector</h1>}
+      <Link to="/" className="bucket-inspector-home-link">
+        {isChumBucket ? <BrandMark /> : <h1>Bucket Inspector</h1>}
+      </Link>
 
       <div className="bucket-url-card">
         <span className="bucket-url-card-label">Your bucket URL</span>
@@ -74,8 +77,9 @@ function sortByReceivedAtDesc(requests: BucketRequestMessage[]): BucketRequestMe
 function BucketInspectorContent({ publicId, ownerToken, url }: BucketInspectorContentProps) {
   const { theme } = useTheme()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
-  // `null` means "follow the newest request". Only an explicit click pins one,
-  // so live arrivals render immediately until the user picks a request.
+  // `null` means "follow the newest request". An explicit click pins one,
+  // but a new request arriving live clears the pin so watchers always land
+  // on the latest activity.
   const [pinnedId, setPinnedId] = useState<number | null>(null)
   const [attempt, setAttempt] = useState(0)
 
@@ -101,7 +105,9 @@ function BucketInspectorContent({ publicId, ownerToken, url }: BucketInspectorCo
   }, [publicId, ownerToken, attempt])
 
   const initialRequests = state.status === 'loaded' ? state.requests : EMPTY_REQUESTS
-  const { requests: liveRequests, status: wsStatus } = useBucketRequestFeed(publicId, initialRequests)
+  const { requests: liveRequests, status: wsStatus } = useBucketRequestFeed(publicId, initialRequests, {
+    onLiveRequest: () => setPinnedId(null),
+  })
   const requests = useMemo(() => sortByReceivedAtDesc(liveRequests), [liveRequests])
 
   // Derived, not state: falls back to the newest request whenever nothing is
