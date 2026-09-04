@@ -63,8 +63,9 @@ function sortByReceivedAtDesc(requests: BucketRequestMessage[]): BucketRequestMe
 
 function BinInspectorContent({ publicId, ownerToken, url }: BinInspectorContentProps) {
   const [state, setState] = useState<LoadState>({ status: 'loading' })
-  // `null` means "follow the newest request". Only an explicit click pins one,
-  // so live arrivals render immediately until the user picks a request.
+  // `null` means "follow the newest request". An explicit click pins one,
+  // but a new request arriving live clears the pin so watchers always land
+  // on the latest activity.
   const [pinnedId, setPinnedId] = useState<number | null>(null)
   const [attempt, setAttempt] = useState(0)
 
@@ -90,7 +91,9 @@ function BinInspectorContent({ publicId, ownerToken, url }: BinInspectorContentP
   }, [publicId, ownerToken, attempt])
 
   const initialRequests = state.status === 'loaded' ? state.requests : EMPTY_REQUESTS
-  const { requests: liveRequests, status: wsStatus } = useBucketRequestFeed(publicId, initialRequests)
+  const { requests: liveRequests, status: wsStatus } = useBucketRequestFeed(publicId, initialRequests, {
+    onLiveRequest: () => setPinnedId(null),
+  })
   const requests = useMemo(() => sortByReceivedAtDesc(liveRequests), [liveRequests])
 
   // Derived, not state: falls back to the newest request whenever nothing is
