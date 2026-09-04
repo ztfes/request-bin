@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   addStoredBucket,
@@ -7,6 +7,7 @@ import {
   type StoredBucket,
 } from "./lib/binStorage";
 import { ApiError, listBucketRequests } from "./lib/api";
+import { useBinListWatch } from "./hooks/useBinListWatch";
 import BrandMark from "./components/BrandMark";
 import { useTheme } from "./theme/ThemeContext";
 import "./CreateBucket.css";
@@ -85,8 +86,15 @@ export default function CreateBucket() {
   const [stats, setStats] = useState<Record<string, BucketStats | "error" | undefined>>({});
   const navigate = useNavigate();
 
-  function forgetBucket(publicId: string) {
-    setMyBuckets(removeStoredBucket(publicId));
+  // Memoized so the stats effect below can depend on it honestly instead of
+  // re-running on every render. Both only touch stable setters and imports.
+  const forgetBucket = useCallback((publicId: string) => {
+    const updated = removeStoredBucket(publicId);
+    // Hold the same array identity when nothing actually changed. `myBuckets`
+    // drives both the stats effect and the socket effect, so handing back a
+    // fresh array for a bin that was already dropped would re-run both --
+    // and the REST 404 and the socket's 4404 routinely report the same bin.
+    setMyBuckets((current) => (current.length === updated.length ? current : updated));
     setStats((s) => {
       if (!(publicId in s)) return s;
       const next = { ...s };
@@ -95,36 +103,43 @@ export default function CreateBucket() {
     });
     // Clear the "just created" panel if it was pointing at this bin.
     setBucket((current) => (current?.public_id === publicId ? null : current));
-  }
+  }, []);
+
+  const loadStats = useCallback((b: StoredBucket, isActive: () => boolean) => {
+    listBucketRequests(b.public_id, b.owner_token)
+      .then((data) => {
+        if (!isActive()) return;
+        const endpoints = new Set(data.requests.map((r) => r.path)).size;
+        setStats((s) => ({ ...s, [b.public_id]: { total: data.total, endpoints } }));
+      })
+      .catch((err: unknown) => {
+        if (!isActive()) return;
+        // A 404 means retention deleted this bin, so stop listing it. Any
+        // other failure (backend down, 403) may be temporary -- keep the
+        // entry and show it as unreachable, because dropping it would
+        // discard the owner token for a bin that still exists.
+        if (err instanceof ApiError && err.status === 404) {
+          forgetBucket(b.public_id);
+          return;
+        }
+        setStats((s) => ({ ...s, [b.public_id]: "error" }));
+      });
+  }, [forgetBucket]);
 
   useEffect(() => {
     let cancelled = false;
-
-    myBuckets.forEach((b) => {
-      listBucketRequests(b.public_id, b.owner_token)
-        .then((data) => {
-          if (cancelled) return;
-          const endpoints = new Set(data.requests.map((r) => r.path)).size;
-          setStats((s) => ({ ...s, [b.public_id]: { total: data.total, endpoints } }));
-        })
-        .catch((err: unknown) => {
-          if (cancelled) return;
-          // A 404 means retention deleted this bin, so stop listing it. Any
-          // other failure (backend down, 403) may be temporary -- keep the
-          // entry and show it as unreachable, because dropping it would
-          // discard the owner token for a bin that still exists.
-          if (err instanceof ApiError && err.status === 404) {
-            forgetBucket(b.public_id);
-            return;
-          }
-          setStats((s) => ({ ...s, [b.public_id]: "error" }));
-        });
-    });
-
+    myBuckets.forEach((b) => loadStats(b, () => !cancelled));
     return () => {
       cancelled = true;
     };
-  }, [myBuckets]);
+  }, [myBuckets, loadStats]);
+
+  // Live updates: a bin expiring drops off the list, and new or trimmed
+  // requests refresh that row's counts, without a reload.
+  useBinListWatch(myBuckets, {
+    onExpired: (b) => forgetBucket(b.public_id),
+    onChanged: (b) => loadStats(b, () => true),
+  });
 
   async function handleCreate() {
     setError(null);
