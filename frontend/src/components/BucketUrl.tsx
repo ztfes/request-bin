@@ -1,10 +1,10 @@
 import { useState } from 'react'
 
-interface BinUrlProps {
+interface BucketUrlProps {
   url: string
 }
 
-function BinUrl({ url }: BinUrlProps) {
+function BucketUrl({ url }: BucketUrlProps) {
   const [copied, setCopied] = useState(false)
 
   async function handleCopy() {
@@ -18,8 +18,8 @@ function BinUrl({ url }: BinUrlProps) {
   }
 
   return (
-    <div className="bin-url-row">
-      <code className="bin-url">{url}</code>
+    <div className="bucket-url-row">
+      <code className="bucket-url">{url}</code>
       <button type="button" className="copy-button" onClick={handleCopy}>
         <svg
           width="14"
@@ -41,4 +41,4 @@ function BinUrl({ url }: BinUrlProps) {
   )
 }
 
-export default BinUrl
+export default BucketUrl

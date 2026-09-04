@@ -1,12 +1,16 @@
-.bin-inspector {
+.bucket-inspector {
+  position: relative;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   text-align: left;
   background: var(--bg);
+  overflow: hidden;
 }
 
-.bin-inspector-header {
+.bucket-inspector-header {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -25,7 +29,44 @@
   }
 }
 
-.bin-inspector-home-link {
+.bucket-url-card-label {
+  display: none;
+}
+
+.bucket-inspector-body {
+  position: relative;
+  z-index: 1;
+}
+
+:root[data-theme='chum-bucket'] .bucket-inspector-header {
+  padding: 32px 40px 28px;
+}
+
+:root[data-theme='chum-bucket'] .bucket-url-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel-bg);
+}
+
+:root[data-theme='chum-bucket'] .bucket-url-card .bucket-url {
+  background: var(--code-bg);
+}
+
+:root[data-theme='chum-bucket'] .bucket-url-card-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.bucket-inspector-home-link {
   text-decoration: none;
 
   &:hover h1 {
@@ -34,13 +75,13 @@
   }
 }
 
-.bin-url-row {
+.bucket-url-row {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.bin-url {
+.bucket-url {
   display: inline-flex;
   align-items: center;
   font-family: var(--mono);
@@ -78,7 +119,7 @@
   }
 }
 
-.bin-inspector-body {
+.bucket-inspector-body {
   flex-grow: 1;
   display: flex;
   min-height: 0;
@@ -116,6 +157,57 @@
   flex-grow: 1;
   min-height: 0;
   width: 100%;
+}
+
+/* Transparent passthrough by default so `.request-list` stays a direct flex
+   child of `.panes`, exactly as before this wrapper existed. */
+.request-list-pane {
+  display: contents;
+}
+
+.request-list-pane-header {
+  display: none;
+}
+
+:root[data-theme='chum-bucket'] .bucket-inspector-body {
+  padding: 20px 40px 40px;
+}
+
+:root[data-theme='chum-bucket'] .panes {
+  gap: 20px;
+}
+
+:root[data-theme='chum-bucket'] .request-list-pane {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 340px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--panel-bg);
+  overflow: hidden;
+}
+
+:root[data-theme='chum-bucket'] .request-list-pane-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-h);
+}
+
+:root[data-theme='chum-bucket'] .request-detail {
+  align-self: flex-start;
+  max-height: 100%;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--panel-bg);
 }
 
 .request-list {
@@ -171,6 +263,30 @@
   }
 }
 
+:root[data-theme='chum-bucket'] .request-list {
+  width: 100%;
+  flex-shrink: 1;
+  border-right: none;
+  background: transparent;
+  padding: 8px;
+}
+
+:root[data-theme='chum-bucket'] .request-list-item {
+  border-radius: 12px;
+  border-bottom-color: transparent;
+  margin-bottom: 4px;
+}
+
+:root[data-theme='chum-bucket'] .request-list-item:hover {
+  background: var(--panel-bg-raised);
+}
+
+:root[data-theme='chum-bucket'] .request-list-item[aria-current='true'] {
+  background: var(--panel-bg-raised);
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 1px var(--accent-border);
+}
+
 .method {
   display: inline-flex;
   font-family: var(--mono);
@@ -206,6 +322,12 @@
   color: var(--method-delete);
   background: var(--method-delete-bg);
   border-color: var(--method-delete-border);
+}
+
+:root[data-theme='chum-bucket'] .method {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
 }
 
 .request-detail {
@@ -289,6 +411,17 @@
   overflow: auto;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+:root[data-theme='chum-bucket'] .headers-table,
+:root[data-theme='chum-bucket'] .body {
+  background: var(--code-bg);
+  border-color: var(--border);
+}
+
+:root[data-theme='chum-bucket'] .headers-table th,
+:root[data-theme='chum-bucket'] .headers-table td {
+  border-bottom-color: var(--border);
 }
 
 @media (max-width: 768px) {
