@@ -40,3 +40,21 @@ export function addStoredBucket(bucket: StoredBucket): StoredBucket[] {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
   return updated
 }
+
+/**
+ * Drops a bin the server no longer has, so retention deleting it server-side
+ * also clears it from this browser.
+ *
+ * Only call this on a definite 404. A network failure or a 403 means the bin
+ * may well still exist -- forgetting it would throw away the owner token,
+ * which is the only thing that can ever read that bin again.
+ *
+ * Re-reads storage rather than filtering a caller-held array so concurrent
+ * removals (the landing page checks every bin at once) can't clobber each
+ * other.
+ */
+export function removeStoredBucket(publicId: string): StoredBucket[] {
+  const updated = getStoredBuckets().filter((b) => b.public_id !== publicId)
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+  return updated
+}

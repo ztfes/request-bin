@@ -17,6 +17,24 @@ export interface BucketRequestMessage {
   mongo_id: string
 }
 
+/**
+ * Control messages the backend sends when retention deletes something --
+ * the cap trimming a bin's oldest requests, or a TTL sweep expiring
+ * requests or a whole bin.
+ *
+ * They're discriminated by `type`, which capture messages don't carry, so
+ * a client running older code drops them in `isBucketRequestMessage`
+ * instead of mistaking one for a request.
+ */
+export interface RequestsRemovedMessage {
+  type: 'requests_removed'
+  ids: number[]
+}
+
+export interface BinExpiredMessage {
+  type: 'bin_expired'
+}
+
 export type ConnectionStatus = 'connecting' | 'open' | 'reconnecting' | 'closed' | 'not-found'
 
 /**
@@ -46,6 +64,10 @@ function isApplicationCloseCode(code: number): boolean {
 export interface BucketSocketHandlers {
   onMessage: (message: BucketRequestMessage) => void
   onStatusChange: (status: ConnectionStatus) => void
+  // Retention deleted these requests; drop them from the view.
+  onRequestsRemoved?: (ids: number[]) => void
+  // The whole bin aged out. Nothing is left to reconnect to.
+  onBinExpired?: () => void
 }
 
 const DEFAULT_API_URL = 'http://localhost:8000'
@@ -60,6 +82,21 @@ function resolveWsUrl(bucketId: string): string {
   const apiUrl = configured && /^https?:\/\//.test(configured) ? configured : DEFAULT_API_URL
   const wsUrl = apiUrl.replace(/^http/, 'ws').replace(/\/+$/, '')
   return `${wsUrl}/ws/${encodeURIComponent(bucketId)}`
+}
+
+function isRequestsRemovedMessage(value: unknown): value is RequestsRemovedMessage {
+  if (typeof value !== 'object' || value === null) return false
+  const v = value as Record<string, unknown>
+  return (
+    v.type === 'requests_removed' &&
+    Array.isArray(v.ids) &&
+    v.ids.every((id) => typeof id === 'number')
+  )
+}
+
+function isBinExpiredMessage(value: unknown): value is BinExpiredMessage {
+  return typeof value === 'object' && value !== null &&
+    (value as Record<string, unknown>).type === 'bin_expired'
 }
 
 function isBucketRequestMessage(value: unknown): value is BucketRequestMessage {
@@ -144,6 +181,17 @@ export class BucketRequestSocket {
       try {
         parsed = JSON.parse(event.data as string)
       } catch {
+        return
+      }
+      if (isRequestsRemovedMessage(parsed)) {
+        this.handlers.onRequestsRemoved?.(parsed.ids)
+        return
+      }
+      if (isBinExpiredMessage(parsed)) {
+        this.handlers.onBinExpired?.()
+        // The bucket row is gone, so reconnecting would only earn a 4404.
+        // close() sets closedByCaller, which stops the backoff loop.
+        this.close()
         return
       }
       if (isBucketRequestMessage(parsed)) {

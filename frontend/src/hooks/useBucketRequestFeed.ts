@@ -4,6 +4,9 @@ import { BucketRequestSocket, type BucketRequestMessage, type ConnectionStatus }
 export interface UseBucketRequestFeedResult {
   requests: BucketRequestMessage[]
   status: ConnectionStatus
+  // True once retention has deleted the whole bin. The socket is closed and
+  // `requests` is empty; there is nothing left to reconnect to.
+  expired: boolean
 }
 
 export interface UseBucketRequestFeedOptions {
@@ -15,6 +18,7 @@ export interface UseBucketRequestFeedOptions {
 // Shared reference so omitting `initialRequests` doesn't hand back a fresh
 // array (and therefore a new `requests` identity) on every render.
 const EMPTY_REQUESTS: BucketRequestMessage[] = []
+const EMPTY_REMOVED_IDS: ReadonlySet<number> = new Set()
 
 /**
  * Opens a live websocket feed for `bucketId` and merges incoming requests
@@ -39,6 +43,11 @@ export function useBucketRequestFeed(
   const [trackedBucketId, setTrackedBucketId] = useState(bucketId)
   const [liveMessages, setLiveMessages] = useState<BucketRequestMessage[]>([])
   const [status, setStatus] = useState<ConnectionStatus>('connecting')
+  // Ids retention has deleted. Tracked separately from `liveMessages`
+  // because a deleted request usually lives in `initialRequests`, which
+  // belongs to the caller and can't be edited from here.
+  const [removedIds, setRemovedIds] = useState<ReadonlySet<number>>(EMPTY_REMOVED_IDS)
+  const [expired, setExpired] = useState(false)
 
   // Ref so the effect below doesn't need to resubscribe when the caller
   // passes a new callback identity.
@@ -51,6 +60,8 @@ export function useBucketRequestFeed(
     setTrackedBucketId(bucketId)
     setLiveMessages([])
     setStatus('connecting')
+    setRemovedIds(EMPTY_REMOVED_IDS)
+    setExpired(false)
   }
 
   useEffect(() => {
@@ -68,6 +79,15 @@ export function useBucketRequestFeed(
         setLiveMessages((current) => [message, ...current])
         onLiveRequestRef.current?.(message)
       },
+      onRequestsRemoved: (ids) => {
+        const removed = new Set(ids)
+        setLiveMessages((current) => current.filter((m) => !removed.has(m.id)))
+        setRemovedIds((current) => new Set([...current, ...ids]))
+      },
+      onBinExpired: () => {
+        setExpired(true)
+        setLiveMessages([])
+      },
     })
 
     socket.connect()
@@ -78,10 +98,17 @@ export function useBucketRequestFeed(
   }, [bucketId])
 
   const requests = useMemo(() => {
-    if (liveMessages.length === 0) return initialRequests
+    if (expired) return EMPTY_REQUESTS
     const liveIds = new Set(liveMessages.map((message) => message.id))
-    return [...liveMessages, ...initialRequests.filter((request) => !liveIds.has(request.id))]
-  }, [liveMessages, initialRequests])
+    const merged =
+      liveMessages.length === 0
+        ? initialRequests
+        : [...liveMessages, ...initialRequests.filter((request) => !liveIds.has(request.id))]
+    // Applied to the merge, not just `liveMessages`: a trimmed request is
+    // usually one the REST fetch supplied.
+    if (removedIds.size === 0) return merged
+    return merged.filter((request) => !removedIds.has(request.id))
+  }, [expired, liveMessages, initialRequests, removedIds])
 
-  return { requests, status: bucketId ? status : 'closed' }
+  return { requests, status: bucketId ? status : 'closed', expired }
 }

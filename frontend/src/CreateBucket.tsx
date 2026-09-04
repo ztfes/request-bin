@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { addStoredBucket, getStoredBuckets, type StoredBucket } from "./lib/binStorage";
-import { listBucketRequests } from "./lib/api";
+import {
+  addStoredBucket,
+  getStoredBuckets,
+  removeStoredBucket,
+  type StoredBucket,
+} from "./lib/binStorage";
+import { ApiError, listBucketRequests } from "./lib/api";
 import BrandMark from "./components/BrandMark";
 import { useTheme } from "./theme/ThemeContext";
 import "./CreateBucket.css";
@@ -80,6 +85,18 @@ export default function CreateBucket() {
   const [stats, setStats] = useState<Record<string, BucketStats | "error" | undefined>>({});
   const navigate = useNavigate();
 
+  function forgetBucket(publicId: string) {
+    setMyBuckets(removeStoredBucket(publicId));
+    setStats((s) => {
+      if (!(publicId in s)) return s;
+      const next = { ...s };
+      delete next[publicId];
+      return next;
+    });
+    // Clear the "just created" panel if it was pointing at this bin.
+    setBucket((current) => (current?.public_id === publicId ? null : current));
+  }
+
   useEffect(() => {
     let cancelled = false;
 
@@ -90,8 +107,16 @@ export default function CreateBucket() {
           const endpoints = new Set(data.requests.map((r) => r.path)).size;
           setStats((s) => ({ ...s, [b.public_id]: { total: data.total, endpoints } }));
         })
-        .catch(() => {
+        .catch((err: unknown) => {
           if (cancelled) return;
+          // A 404 means retention deleted this bin, so stop listing it. Any
+          // other failure (backend down, 403) may be temporary -- keep the
+          // entry and show it as unreachable, because dropping it would
+          // discard the owner token for a bin that still exists.
+          if (err instanceof ApiError && err.status === 404) {
+            forgetBucket(b.public_id);
+            return;
+          }
           setStats((s) => ({ ...s, [b.public_id]: "error" }));
         });
     });
