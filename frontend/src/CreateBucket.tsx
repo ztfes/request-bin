@@ -12,7 +12,7 @@ import BrandMark from "./components/BrandMark";
 import { useTheme } from "./theme/ThemeContext";
 import "./CreateBucket.css";
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
 const CHUM_AVATAR_COLORS = ["#ded6fb", "#ffd9d0", "#ffe9b3", "#d3e9ff"];
 const PRO_AVATAR_COLORS = [
