@@ -55,5 +55,6 @@ export function getBucketRequest(publicId: string, requestId: number, ownerToken
 }
 
 export function bucketUrl(publicId: string): string {
-  return `${API_BASE}/${publicId}`
+  const base = API_BASE || window.location.origin
+  return `${base}/${publicId}`
 }
