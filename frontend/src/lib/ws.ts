@@ -76,12 +76,22 @@ const MAX_RECONNECT_DELAY_MS = 30000
 
 function resolveWsUrl(bucketId: string): string {
   const configured = (import.meta.env.VITE_API_URL as string | undefined)?.trim()
-  // Falls back to DEFAULT_API_URL for unset/blank *and* schemeless values
-  // (e.g. a `VITE_API_URL=localhost:8000` typo missing `http://`) so we
-  // never hand `new WebSocket()` a URL with no ws/wss scheme.
-  const apiUrl = configured && /^https?:\/\//.test(configured) ? configured : DEFAULT_API_URL
-  const wsUrl = apiUrl.replace(/^http/, 'ws').replace(/\/+$/, '')
-  return `${wsUrl}/ws/${encodeURIComponent(bucketId)}`
+
+  let wsOrigin: string
+  if (configured && /^https?:\/\//.test(configured)) {
+    // Absolute URL: use its origin only, ignore any path (e.g. "/api").
+    const url = new URL(configured)
+    wsOrigin = `${url.protocol === 'https:' ? 'wss:' : 'ws:'}//${url.host}`
+  } else if (configured && configured.startsWith('/')) {
+    // Relative path (e.g. "/api"): resolve against the page's own origin.
+    wsOrigin = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`
+  } else {
+    // Unset, blank, or schemeless/malformed: fall back to DEFAULT_API_URL.
+    const fallback = new URL(DEFAULT_API_URL)
+    wsOrigin = `${fallback.protocol === 'https:' ? 'wss:' : 'ws:'}//${fallback.host}`
+  }
+
+  return `${wsOrigin}/ws/${encodeURIComponent(bucketId)}`
 }
 
 function isRequestsRemovedMessage(value: unknown): value is RequestsRemovedMessage {
