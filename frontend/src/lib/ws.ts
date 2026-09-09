@@ -76,10 +76,16 @@ const MAX_RECONNECT_DELAY_MS = 30000
 
 function resolveWsUrl(bucketId: string): string {
   const configured = (import.meta.env.VITE_API_URL as string | undefined)?.trim()
-  // Falls back to DEFAULT_API_URL for unset/blank *and* schemeless values
-  // (e.g. a `VITE_API_URL=localhost:8000` typo missing `http://`) so we
-  // never hand `new WebSocket()` a URL with no ws/wss scheme.
-  const apiUrl = configured && /^https?:\/\//.test(configured) ? configured : DEFAULT_API_URL
+  let apiUrl: string
+  if (configured && /^https?:\/\//.test(configured)) {
+    apiUrl = configured
+  } else if (configured === undefined || configured === '') {
+    apiUrl = window.location.origin
+  } else {
+    // Non-empty but schemeless/malformed (e.g. a `localhost:8000` typo
+    // missing `http://`) — fall back rather than hand new WebSocket() junk.
+    apiUrl = DEFAULT_API_URL
+  }
   const wsUrl = apiUrl.replace(/^http/, 'ws').replace(/\/+$/, '')
   return `${wsUrl}/ws/${encodeURIComponent(bucketId)}`
 }
