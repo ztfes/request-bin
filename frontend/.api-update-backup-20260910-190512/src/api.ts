@@ -7,9 +7,7 @@
  */
 
 /** Backend origin, configurable per environment via VITE_API_URL. */
-export const BASE_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '')
-/** BASE_URL resolved against the page origin, for URLs that must be absolute. */
-const ABSOLUTE_BASE_URL = new URL(BASE_URL, window.location.origin).href.replace(/\/+$/, '')
+export const BASE_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000').replace(/\/+$/, '')
 
 /** Mirrors backend BucketOut. */
 export interface Bucket {
@@ -98,7 +96,7 @@ export function getRequestDetail(
  * not the integer bucket_id.
  */
 export function wsUrl(publicId: string): string {
-  return `${ABSOLUTE_BASE_URL.replace(/^http/, 'ws')}/ws/${publicId}`
+  return `${BASE_URL.replace(/^http/, 'ws')}/ws/${publicId}`
 }
 
 /**
@@ -110,5 +108,5 @@ export function wsUrl(publicId: string): string {
  * will not follow.
  */
 export function captureUrl(publicId: string): string {
-  return `${ABSOLUTE_BASE_URL}/hooks/${publicId}/`
+  return `${BASE_URL}/${publicId}/`
 }

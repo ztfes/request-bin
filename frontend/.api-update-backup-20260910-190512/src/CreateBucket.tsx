@@ -12,9 +12,7 @@ import BrandMark from "./components/BrandMark";
 import { useTheme } from "./theme/ThemeContext";
 import "./CreateBucket.css";
 
-const API_BASE = import.meta.env.VITE_API_URL || "/api";
-// Absolute form of API_BASE, for URLs users copy outside the app.
-const API_URL_ABSOLUTE = new URL(API_BASE, window.location.origin).href.replace(/\/+$/, "");
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
 const CHUM_AVATAR_COLORS = ["#ded6fb", "#ffd9d0", "#ffe9b3", "#d3e9ff"];
 const PRO_AVATAR_COLORS = [
@@ -150,7 +148,7 @@ export default function CreateBucket() {
     }
   }
 
-  const catchAllUrl = bucket ? `${API_URL_ABSOLUTE}/hooks/${bucket.public_id}/` : null;
+  const catchAllUrl = bucket ? `${API_BASE}/${bucket.public_id}` : null;
 
   async function handleCopy() {
         if (!catchAllUrl) return;
@@ -201,7 +199,7 @@ export default function CreateBucket() {
         {bucket && (
           <div className="new-bucket-panel">
             <p>
-              Send requests to: <code className="new-bucket-url">{catchAllUrl}</code>
+              Send requests to: <code className="new-bucket-url">{API_BASE}/{bucket.public_id}</code>
             </p>
             <div className="button-row">
               <button className="secondary-button" onClick={handleCopy}>{copied ? "Copied!" : "Copy"}</button>

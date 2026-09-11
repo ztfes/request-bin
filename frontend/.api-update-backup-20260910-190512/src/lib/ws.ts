@@ -70,7 +70,7 @@ export interface BucketSocketHandlers {
   onBinExpired?: () => void
 }
 
-const DEFAULT_API_PATH = '/api'
+const DEFAULT_API_URL = 'http://localhost:8000'
 const MIN_RECONNECT_DELAY_MS = 1000
 const MAX_RECONNECT_DELAY_MS = 30000
 
@@ -78,14 +78,13 @@ function resolveWsUrl(bucketId: string): string {
   const configured = (import.meta.env.VITE_API_URL as string | undefined)?.trim()
   let apiUrl: string
   if (configured && /^https?:\/\//.test(configured)) {
-    // Absolute backend URL, e.g. https://api.example.com/api
     apiUrl = configured
-  } else if (configured && configured.startsWith('/')) {
-    // Relative path, e.g. /api: same origin as the page (CloudFront or the Vite proxy)
-    apiUrl = window.location.origin + configured
+  } else if (configured === undefined || configured === '') {
+    apiUrl = window.location.origin
   } else {
-    // Unset, blank, or malformed: default to same-origin /api
-    apiUrl = window.location.origin + DEFAULT_API_PATH
+    // Non-empty but schemeless/malformed (e.g. a `localhost:8000` typo
+    // missing `http://`) — fall back rather than hand new WebSocket() junk.
+    apiUrl = DEFAULT_API_URL
   }
   const wsUrl = apiUrl.replace(/^http/, 'ws').replace(/\/+$/, '')
   return `${wsUrl}/ws/${encodeURIComponent(bucketId)}`
