@@ -56,5 +56,5 @@ export function getBucketRequest(publicId: string, requestId: number, ownerToken
 
 export function bucketUrl(publicId: string): string {
   const base = new URL(API_BASE, window.location.origin).href.replace(/\/+$/, '')
-  return `${base}/${publicId}`
+  return `${base}/hooks/${publicId}/`
 }
