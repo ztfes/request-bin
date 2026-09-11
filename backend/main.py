@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+import socket
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
@@ -29,8 +30,13 @@ async def lifespan(app: FastAPI):
         pass
 
 
-app = FastAPI(title="Request Bin", lifespan=lifespan)
+# redirect_slashes=False: behind CloudFront + ALB, FastAPI's trailing-slash
+# redirects would be built from the ALB's Host header and send browsers off
+# the CloudFront domain.
+app = FastAPI(title="Request Bin", lifespan=lifespan, redirect_slashes=False)
 
+# Only needed for local development without the Vite proxy. Through CloudFront
+# the frontend and API share one origin, so browsers don't apply CORS.
 frontend_origins = os.getenv("FRONTEND_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
 app.add_middleware(
     CORSMiddleware,
@@ -39,7 +45,17 @@ app.add_middleware(
     allow_headers=["Owner-Token"],
 )
 
-# bins must come first -- catch_all's /{full_path:path} would otherwise swallow it.
-app.include_router(bins.router)
-app.include_router(websocket.router)
-app.include_router(catch_all.router)
+
+@app.get("/api/health")
+def health():
+    """ALB target group health check. Kept cheap: no database access."""
+    return {"status": "ok", "host": socket.gethostname()}
+
+
+# CloudFront only routes /api/* to the ALB, so every backend route lives under /api.
+# bins must come before catch_all, whose path-parameter route would otherwise swallow it.
+# catch_all gets its own /hooks segment so unmatched /api paths return 404 instead of
+# failing UUID validation.
+app.include_router(bins.router, prefix="/api")          # /api/buckets/...
+app.include_router(websocket.router, prefix="/api")     # /api/ws/{bucket_id}
+app.include_router(catch_all.router, prefix="/api/hooks")  # /api/hooks/{public_id}/...
